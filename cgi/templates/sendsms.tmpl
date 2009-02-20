@@ -1,0 +1,84 @@
+<tmpl_include name="header.tmpl">
+
+<center>
+<table border=1 cellspacing=0 cellpadding=20 width='400'>
+<tr><td>
+
+    <form name=sendsms method=post action="<tmpl_var name='pname'>">
+    <input type="hidden" name="rm" value="sendsmssubmit">
+    <input type="hidden" name="instance" value="<tmpl_var name='instance'>">
+    <table border=0>
+    <tr><td>From</td><td><input name=lac type=text size=8>
+        </td></tr>
+
+    <tr><td>To MSISDN</td><td><textarea name=msisdn cols=30 rows=2></textarea>
+        </td></tr>
+
+    <tr><td>Via SMSC</td><td><input name=smsc type=text size=8>
+        </td></tr>
+
+    <tr><td>Validity Periode</td><td><input name=validity type=text size=8 value=0>&nbsp;&nbsp;(minutes)
+        </td></tr>
+
+    <tr><td>Tariff Class</td><td><select name=tc>
+           <tmpl_loop name="tcs">
+	   <option value="<tmpl_var name='name'>"> <tmpl_var name='name'>
+	   </tmpl_loop>
+	   </select>
+        </td></tr>
+
+    <tr><td>Message type</td><td><select name=messagetype>
+	<option value=text selected>Text
+	<option value=flash_text>Flash Text
+	<option value=binary>Binary
+	<option value=nokia_logo>Nokia Operator Logo
+	<option value=nokia_tone>Nokia Ring Tone
+	<option value=nokia_group>Nokia Group Logo
+	<option value=nokia_profile>Nokia Profile
+	</select>
+        </td></tr>
+
+    <tr><td valign=top>UDH</td><td><textarea name=udh cols=30 rows=2></textarea>
+        </td></tr>
+
+    <tr><td valign=top>Message text</td><td><textarea name=message cols=30 rows=5></textarea>
+        </td></tr>
+
+    <tr><td>Character Set</td><td><select name=charset>
+	<option value="" selected>default
+	<option value="ISO-8859-1">ISO-8859-1
+	<option value="ISO-8859-2">ISO-8859-2
+	<option value="ISO-8859-3">ISO-8859-3
+	<option value="ISO-8859-4">ISO-8859-4
+	<option value="ISO-8859-5">ISO-8859-5
+	<option value="ISO-8859-6">ISO-8859-6
+	<option value="ISO-8859-7">ISO-8859-7
+	<option value="ISO-8859-8">ISO-8859-8
+	<option value="ISO-8859-9">ISO-8859-9
+	<option value="UTF8">UTF8
+	<option value="UTF16">UTF16
+	<option value="CP437">CP437
+	<option value="CP850">CP850
+	<option value="CP865">CP865
+	<option value="WINDOWS-1250">WINDOWS-1250
+	<option value="WINDOWS-1251">WINDOWS-1251
+	<option value="WINDOWS-1252">WINDOWS-1252
+	<option value="WINDOWS-1253">WINDOWS-1253
+	<option value="WINDOWS-1254">WINDOWS-1254
+	<option value="WINDOWS-1255">WINDOWS-1255
+	<option value="WINDOWS-1256">WINDOWS-1256
+	<option value="WINDOWS-1257">WINDOWS-1257
+	<option value="WINDOWS-1258">WINDOWS-1258
+	</select>
+        </td></tr>
+
+    <tr><td>&nbsp;</td><td><input type=submit value="Send SMS">
+        </td></tr>
+    </table>
+    </form>
+
+</td></tr>
+</table>
+</center>
+
+<tmpl_include name="footer.tmpl">

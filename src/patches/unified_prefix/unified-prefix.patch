@@ -1,0 +1,105 @@
+Index: gwlib/utils.c
+===================================================================
+RCS file: /home/cvs/gateway/gwlib/utils.c,v
+retrieving revision 1.54
+diff -u -r1.54 utils.c
+--- gwlib/utils.c	9 Jan 2008 20:06:54 -0000	1.54
++++ gwlib/utils.c	15 Sep 2008 09:07:11 -0000
+@@ -679,59 +679,51 @@
+ }
+ 
+ 
+-int normalize_number(char *dial_prefixes, Octstr **number)
+-{
+-    char *t, *p, *official, *start;
+-    int len, official_len;
+-    
+-    if (dial_prefixes == NULL || dial_prefixes[0] == '\0')
++int normalize_number(char *dial_prefixes, Octstr **number) {
++	Octstr *prefixes, *unified_prefix, *prefix, *replacements;
++	List *all_prefixes, *prefix_list;
++	int i,j,replaced_prefix = 0;
++	
++	if (dial_prefixes == NULL || dial_prefixes[0] == '\0')
+         return 0;
+ 
+-    t = official = dial_prefixes;
+-    official_len = 0;
+-
+     gw_assert(number != NULL);
+-    
+-    while(1) {
+ 
+-    	p = octstr_get_cstr(*number);
+-        for(start = t, len = 0; ; t++, p++, len++)
+-	{
+-            if (*t == ',' || *t == ';' || *t == '\0') {
+-                if (start != official) {
+-                    Octstr *nstr;
+-		    long n;
+-		    
+-		    if ( official[0] == '-' ) official_len=0;
+-		    n = official_len;
+-		    if (strlen(official) < (size_t) n)
+-		    	n = strlen(official);
+-                    nstr = octstr_create_from_data(official, n);
+-                    octstr_insert_data(nstr, official_len,
+-                                           octstr_get_cstr(*number) + len,
+-                                           octstr_len(*number) - len);
+-                    octstr_destroy(*number);
+-                    *number = nstr;
+-                }
+-                return 1;
+-            }
+-            if (*p == '\0' || *t != *p)
+-                break;          /* not matching */
+-        }
+-        for(; *t != ',' && *t != ';' && *t != '\0'; t++, len++)
+-            ;
+-        if (*t == '\0') break;
+-        if (start == official) official_len = len;
+-        if (*t == ';') official = t+1;
+-        t++;
+-    }
+-    return 0;
++	prefixes = octstr_create(dial_prefixes);
++	all_prefixes = octstr_split(prefixes, octstr_imm(";"));
++	
++	for (i = 0; i < gwlist_len(all_prefixes); i++) {
++		prefix_list = octstr_split(gwlist_get(all_prefixes, i), octstr_imm(","));
++		unified_prefix = gwlist_get(prefix_list, 0);
++		
++		if (NULL == unified_prefix || gwlist_len(prefix_list) == 1)
++			goto destroy_prefix_list;
++			
++		for (j = 1; j < gwlist_len(prefix_list); j++)
++			// If the number starts with the prefix:
++			prefix = gwlist_get(prefix_list, j);
++			if (octstr_search(*number, prefix, 0) == 0) {
++				octstr_delete(*number, 0, octstr_len(prefix));
++				octstr_insert_data(*number,0,octstr_get_cstr(unified_prefix),
++									octstr_len(unified_prefix));
++				replaced_prefix = 1;
++				break;
++			}
++			
++destroy_prefix_list:
++		gwlist_destroy(prefix_list, octstr_destroy_item);
++		
++		if (replaced_prefix)
++			break;
++	}
++	
++	octstr_destroy(prefixes);
++	gwlist_destroy(all_prefixes, octstr_destroy_item);
++	
++	return replaced_prefix;
+ }
+ 
+ 
+-
+-
+-
+ long decode_network_long(unsigned char *data) {
+         return (data[0] << 24) | (data[1] << 16) | (data[2] << 8) | data[3];
+ }

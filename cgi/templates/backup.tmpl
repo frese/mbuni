@@ -1,0 +1,57 @@
+<tmpl_include name="header.tmpl">
+
+<tmpl_if name='notice'>
+    <div class="notice">
+		<tmpl_var name='notice'>
+	</div>
+</tmpl_if>
+
+<tmpl_if name="errormsg">
+	<div class="errormsg">
+		<tmpl_var name='errormsg'>
+	</div>
+</tmpl_if>
+
+<form name=backups action="<tmpl_var name='pname'>" method="post">
+
+    <input type="hidden" name="rm" value="managebackups" />
+
+	<tmpl_if name="newbackup">
+		<p class="header">Backup name:</p>
+		<input type="hidden" name="instance" value="<tmpl_var name='instance'>" />
+		<input type="hidden" name="action" value="create" />
+		<input type"text" name="name" size="30"/>
+		<input type="submit" value="create"/>
+	<tmpl_else>
+	
+	</tmpl_if>
+
+    <br/>
+
+    <table width="740px" cellspacing="0">
+    <tr>
+	<td colspan="2" width="60"><a class=menu href="<tmpl_var name='nlink'>">New</a></td>
+    <td><p class=listheader>Backup name</p></td>
+	<td align="right"><p class=listheader>Backup date</p></td>
+    </tr>
+
+    <tr><td colspan="4"><hr noshade></td>
+	
+    </tr>
+    <tmpl_loop name='list'>
+    <tmpl_if name=separator>
+        <tr><td colspan="7"><p class=listheader><tmpl_var name=separator></p></td></tr>
+    <tmpl_else>
+		<tr <tmpl_if name=color>bgcolor='#9AA0B7'</tmpl_if>>
+	    <td width="20"><a href="<tmpl_var name='deletelink'>" onclick="return confirmit('Are you sure you want to delete it ?');">
+               <img src="images/delete.gif" alt="Delete" border=0></a></td>
+	    <td width="20"><a href="<tmpl_var name='restorelink'>"><img src="images/restore.gif" width="14px" height="14px" alt="Restore"  onClick="return confirmit('Are you sure you want to restore this backup?')" border=0></a></td>
+	    <td><tmpl_var name="name"></td>
+		<td align="right"><tmpl_var name="date"></td>
+	</tr>
+    </tmpl_if>
+    </tmpl_loop>
+    </table>
+</form>
+
+<tmpl_include name="footer.tmpl">

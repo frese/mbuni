@@ -1,0 +1,15 @@
+This is a set of Ruby scripts that allows sending messages through MBuine
+sendmms interface. The two central scripts are:
+
+- sendmms_binary.rb: Sends a binary message in eaif format through MBuine
+- sendmms_mime.rb: Sends a message in MIME format through MBuni. 
+
+Requires the presensence of mmslib. An easy way to temporarely add this 
+is to:
+export RUBYLIB=/path/to/mmslib
+
+Recent changes:
+
+The new scripts uses a simpler DSL language for sending messages.
+I got tired of commenting out lines and having separate tunnels 
+configured for each mbuni connection. 

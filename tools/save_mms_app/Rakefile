@@ -1,0 +1,19 @@
+require 'rake'
+require 'rake/testtask'
+
+task :default => [:run]
+
+task :run do
+  ruby "script/server"
+end
+
+task :test do
+  ruby "test/test.rb"
+end
+
+task :clean do 
+  require 'YAML'
+  cfg = open("config/config.yml") { |f| YAML.load(f) }
+  `rm -rf #{cfg['attachment-directory']}`
+end
+

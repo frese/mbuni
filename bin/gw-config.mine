@@ -1,0 +1,44 @@
+#!/bin/sh
+
+usage()
+{
+	echo "usage: $0 [--cflags] [--libs] [--version]"
+	exit 0
+}
+
+cflags=no
+libs=no
+version=no
+
+test "$1" || usage
+
+while test "$1"; do
+	case "$1" in
+	--cflags )
+		cflags=yes
+		;;
+	--libs )
+		libs=yes
+		;;
+	--version )
+		version=yes
+		;;
+	* )
+		usage
+		;;
+	esac
+	shift
+done
+
+test "$cflags" = yes && cat << FOO
+-I/Users/af/mbuni/include/kannel -DApple -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -DDARWIN=1 -L/Developer/SDKs/MacOSX10.4u.sdk/usr/lib -I/Developer/SDKs/MacOSX10.4u.sdk/usr/include -I/usr/include/libxml2 -I/usr/include/openssl
+FOO
+
+test "$libs" = yes && cat << FOO
+-L/Users/af/mbuni/lib/kannel -lgw -lwap -lgwlib -lssl -lresolv -lm  -lpthread -liconv -L/usr/lib -lxml2 -lz -lpthread -licucore -lm -L/usr/lib -lcrypto -lssl
+FOO
+
+test "$version" = yes && cat << FOO
+cvs-20061123
+FOO
+

@@ -1,0 +1,4 @@
+These scripts functions as a simple Nokia MMSC.
+
+Run run_term.sh to be able to receive messages. 
+Run run_orig.sh to send an eaif message.

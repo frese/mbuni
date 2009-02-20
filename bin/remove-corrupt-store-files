@@ -1,0 +1,33 @@
+#!/bin/sh
+
+# Remove corrupt queue files from mbuni store
+
+INSTANCE="$1"
+MBUNI_DIR="/home/realtime/mbuni"
+MBUNI_LOG_DIR="$MBUNI_DIR/log"
+TARGET_LOG="$MBUNI_LOG_DIR/mbuni.$INSTANCE.log"
+STORE_BACKUP="$MBUNI_DIR/store-backup/$INSTANCE" 
+
+
+if [ -f $TARGET_LOG ]; then
+	echo "Target log is: $TARGET_LOG"
+else
+	echo "Target log $TARGET_LOG for instance $INSTANCE doesn't exist"
+	exit 1
+fi
+
+corruptions=`tail -10000 $TARGET_LOG|grep "Corrupt"|cut -d: -f5|sort|uniq`
+
+
+echo "Saving files to $STORE_BACKUP"
+mkdir -p $STORE_BACKUP
+
+for i in $corruptions 
+do
+	qf="$i"
+	df=`echo $i|sed s/qf/df/g`
+
+	echo "Removing corrupt queue file: $qf"
+	mv $qf $STORE_BACKUP
+	mv $df $STORE_BACKUP
+done

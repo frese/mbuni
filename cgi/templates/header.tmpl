@@ -1,0 +1,114 @@
+<html>
+<head><title><tmpl_var name="nodename">-Mbuni Administration</title>
+<tmpl_if name='refresh'>
+<meta http-equiv="REFRESH" content="60">
+<meta http-equiv="EXPIRES" content="Sat, 01 Jan 2001 00:00:00 GMT">
+</tmpl_if>
+<link rel="stylesheet" type="text/css" href="style.css">
+<link rel="stylesheet" type="text/css" href="calendar.css">
+<script type="text/javascript" src="calendar.js"></script>
+<script type="text/javascript" src="utility.js"></script>
+</head>
+
+<body onload="setFocus()">
+
+    <div id=header>Mbuni: <a class=header href="<tmpl_var name='pname'>"><tmpl_var name="nodename"></a></div>
+    <div id=logo><a href="http://www.realtime.dk/"><img src="images/logo.gif" alt="Realtime Logo" border="0"></a></div>
+
+    <form name="select" action="<tmpl_var name='pname'>">
+    <div class=instance>
+       <input type="hidden" name="lrm" value="<tmpl_var name='lrm'>">
+       <input type="hidden" name="digest" value="<tmpl_var name='digest'>">
+       Instance:&nbsp;<select class=flat name="instance" OnChange="document.select.submit()">
+		         <tmpl_loop name='instances'>
+		         <option <tmpl_if name='selected'>selected</tmpl_if>><tmpl_var name='name'>
+		         </tmpl_loop>
+		      </select>
+    </div>
+    </form>
+
+    <div id=menu>
+	<a class="<tmpl_if name='mainstatus'>selected<tmpl_else>menu</tmpl_if>" href="<tmpl_var name='pname'>&rm=mainstatus">Status</a><img src="images/dot.gif" alt=".">
+	<a class="<tmpl_if name='documentation'>selected<tmpl_else>menu</tmpl_if>" href="<tmpl_var name='pname'>&rm=documentation">Documentation</a><img src="images/dot.gif" alt=".">
+	<a class="<tmpl_if name='statistics'>selected<tmpl_else>menu</tmpl_if>" href="<tmpl_var name='pname'>&rm=statistics">Statistics</a><img src="images/dot.gif" alt=".">
+	<a class="<tmpl_if name='configuration'>selected<tmpl_else>menu</tmpl_if>" href="<tmpl_var name='pname'>&rm=configuration">Configuration</a><img src="images/dot.gif" alt=".">
+	<a class="<tmpl_if name='control'>selected<tmpl_else>menu</tmpl_if>" href="<tmpl_var name='pname'>&rm=control">Control</a>
+
+    <br><br>
+
+    <tmpl_if name='status'>
+	<a class="<tmpl_if name='mainstatus'>selected<tmpl_else>menu</tmpl_if>" href="<tmpl_var name='pname'>&rm=mainstatus">Main</a><img src="images/dot.gif" alt=".">
+	<a class="<tmpl_if name='graph'>selected<tmpl_else>menu</tmpl_if>" href="<tmpl_var name='pname'>&rm=graph">Graph</a>
+    </tmpl_if>
+
+    <tmpl_if name='documentation'>
+	<a class="<tmpl_if name='doc-admin'>selected<tmpl_else>menu</tmpl_if>" href="<tmpl_var name='pname'>&rm=doc-admin">Administrators Guide</a><img src="images/dot.gif" alt=".">
+	<a class="<tmpl_if name='doc-user'>selected<tmpl_else>menu</tmpl_if>" href="<tmpl_var name='pname'>&rm=doc-user">Users Guide</a>
+    </tmpl_if>
+
+    <tmpl_if name='configuration'>
+	<a class="<tmpl_if name='editcore'>selected<tmpl_else>menu</tmpl_if>" href="<tmpl_var name='pname'>&rm=editcore">Core</a><img src="images/dot.gif" alt=".">
+	<a class="<tmpl_if name='editmbuni'>selected<tmpl_else>menu</tmpl_if>" href="<tmpl_var name='pname'>&rm=editmbuni">Mbuni</a><img src="images/dot.gif" alt=".">
+	<a class="<tmpl_if name='editmmsc'>selected<tmpl_else>menu</tmpl_if>" href="<tmpl_var name='pname'>&rm=editmmsc">Mmsc</a><img src="images/dot.gif" alt=".">
+	<a class="<tmpl_if name='editservices'>selected<tmpl_else>menu</tmpl_if>" href="<tmpl_var name='pname'>&rm=editservices">Services</a><img src="images/dot.gif" alt=".">
+	<a class="<tmpl_if name='editusers'>selected<tmpl_else>menu</tmpl_if>" href="<tmpl_var name='pname'>&rm=editusers">Users</a><img src="images/dot.gif" alt=".">
+        <a class="<tmpl_if name='editservices'>selected<tmpl_else>menu</tmpl_if>" href="<tmpl_var name='pname'>&rm=managebackups">Backups</a><img src="images/dot.gif" alt=".">
+	<a class="<tmpl_if name='editpatterns'>selected<tmpl_else>menu</tmpl_if>" href="<tmpl_var name='pname'>&rm=editpatterns">Substitution patterns</a>
+    </tmpl_if>
+
+    <tmpl_if name='control'>
+        <form name="startform" method="post" action="index.pl"> 
+        <input type="hidden" name="digest" value="<tmpl_var name='digest'>">
+        <input type="hidden" name="rm" value="start">
+        <input type="hidden" name="instance" value="<tmpl_var name='instance'>">
+        </form>
+
+        <form name="stopform" method="post" action="index.pl"> 
+        <input type="hidden" name="digest" value="<tmpl_var name='digest'>">
+        <input type="hidden" name="rm" value="stop">
+        <input type="hidden" name="instance" value="<tmpl_var name='instance'>">
+        </form>
+
+        <form name="restartform" method="post" action="index.pl"> 
+        <input type="hidden" name="digest" value="<tmpl_var name='digest'>">
+        <input type="hidden" name="rm" value="restart">
+        <input type="hidden" name="instance" value="<tmpl_var name='instance'>">
+        </form>
+
+        <form name="flushincomingqueueform" method="post" action="index.pl"> 
+        <input type="hidden" name="digest" value="<tmpl_var name='digest'>">
+        <input type="hidden" name="rm" value="flush-incoming-queue">
+        <input type="hidden" name="instance" value="<tmpl_var name='instance'>">
+        </form>
+
+        <form name="flushoutgoingqueueform" method="post" action="index.pl"> 
+        <input type="hidden" name="digest" value="<tmpl_var name='digest'>">
+        <input type="hidden" name="rm" value="flush-outgoing-queue">
+        <input type="hidden" name="instance" value="<tmpl_var name='instance'>">
+        </form>
+
+        <form name="flushdlrqueueform" method="post" action="index.pl"> 
+        <input type="hidden" name="digest" value="<tmpl_var name='digest'>">
+        <input type="hidden" name="rm" value="flush-dlr-queue">
+        <input type="hidden" name="instance" value="<tmpl_var name='instance'>">
+        </form>
+
+
+
+        <a class="<tmpl_if name='stop'>selected<tmpl_else>menu</tmpl_if>" href="javascript:document.stopform.submit()" 
+                 onclick="return confirmit('Are you sure you want to stop?');">Stop</a><img src="images/dot.gif" alt=".">
+        <a class="<tmpl_if name='start'>selected<tmpl_else>menu</tmpl_if>" href="javascript:document.startform.submit()">Start</a><img src="images/dot.gif" alt=".">
+        <a class="<tmpl_if name='restart'>selected<tmpl_else>menu</tmpl_if>" href="javascript:document.restartform.submit()" 
+                 onclick="return confirmit('Are you sure you want to restart ?');">Restart</a><img src="images/dot.gif" alt=".">
+        <a class="<tmpl_if name='flush-incoming'>selected<tmpl_else>menu</tmpl_if>" href="javascript:document.flushincomingqueueform.submit()"
+                 onclick="return confirmit('Are you sure you want to flush the incoming queue ?');">Flush incoming queue</a><img src="images/dot.gif" alt=".">
+        <a class="<tmpl_if name='flush-incoming'>selected<tmpl_else>menu</tmpl_if>" href="javascript:document.flushoutgoingqueueform.submit()"
+                 onclick="return confirmit('Are you sure you want to flush the outgoing queue ?');">Flush outgoing queue</a><img src="images/dot.gif" alt=".">
+        <a class="<tmpl_if name='flush-incoming'>selected<tmpl_else>menu</tmpl_if>" href="javascript:document.flushdlrqueueform.submit()"
+                 onclick="return confirmit('Are you sure you want to flush the DLR queue ?');">Flush DLR queue</a> <img src="images/dot.gif" alt=".">
+        <a class="<tmpl_if name='managebackups'>selected<tmpl_else>menu</tmpl_if>" href="<tmpl_var name='pname'>&rm=managebackups">Backups</a>
+
+    </tmpl_if>
+
+    </div>
+    <div class=content>

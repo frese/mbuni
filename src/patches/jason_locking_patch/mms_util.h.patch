@@ -1,0 +1,23 @@
+Index: mms_util.h
+===================================================================
+RCS file: /home/cvs/MBUNI/mmlib/mms_util.h,v
+retrieving revision 1.1
+retrieving revision 1.2
+diff -a -u -r1.1 -r1.2
+--- mms_util.h	31 Jul 2008 22:02:46 -0000	1.1
++++ mms_util.h	10 Sep 2008 04:04:09 -0000	1.2
+@@ -136,7 +136,14 @@
+  * we use flock()
+  */
+ int mm_lockfile(int fd, char *fname, int shouldblock);
++int lockfile(int fd, int shouldblock);
+ 
++/*
++ * unlock_and_fclose/unlock_and_close are wrappers around fclose/close
++ * needed to maintain the state of the global list on Solaris.
++ */
++int unlock_and_fclose(FILE *fp);
++int unlock_and_close(int fd);
+ 
+ /* Returns true if the character is printable or space */
+ int _mms_gw_isprint(int c);

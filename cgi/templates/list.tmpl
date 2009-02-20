@@ -1,0 +1,42 @@
+<tmpl_include name='header.tmpl'>
+
+<form name=frmlist action="<tmpl_var name='pname'>" method="post">
+
+    <input type="hidden" name="rm" value="list">
+    <input type="hidden" name="action" value="edit">
+    <input type="hidden" name="type" value="<tmpl_var name='type'>">
+
+    <br>
+
+    <table width="740px" cellspacing="0">
+    <tr><td colspan="3" width="60"><a class=menu href="<tmpl_var name='nlink'>">New</a></td>
+        <td><p class=listheader><tmpl_var name="header1"></p></td>
+        <td><p class=listheader><tmpl_var name="header2"></p></td>
+        <td><p class=listheader><tmpl_var name="header3"></p></td>
+        <td><p class=listheader><tmpl_var name="header4"></p></td>
+    </tr>
+    <tr><td colspan="7"><hr noshade></td>
+    </tr>
+    <tmpl_loop name='list'>
+    <tmpl_if name=separator>
+        <tr><td colspan="7"><p class=listheader><tmpl_var name=separator></p></td></tr>
+    <tmpl_else>
+	<tr <tmpl_if name=color>bgcolor='#9AA0B7'</tmpl_if>>
+	    <td width="20"><a href="<tmpl_var name='dlink'>" onclick="return confirmit('Are you sure you want to delete it ?');"><img src="images/delete.gif" alt="Delete" border=0></a></td>
+	    <td width="20"><a href="<tmpl_var name='clink'>"><img src="images/copy.gif" alt="Copy" border=0></a></td>
+	    <td width="20"><a href="<tmpl_var name='tlink'>"><tmpl_if name="disabled"><img src="images/disable.gif" alt="Enable" border=0><tmpl_else><img src="images/enable.gif" alt="Disable" border=0></tmpl_if></a></td>
+	    <td><a class=list href="<tmpl_var name='elink'>"><tmpl_var name='text1'></a></td>
+	    <td><a class=list href="<tmpl_var name='elink'>"><tmpl_var name='text2'></a></td>
+	    <td><a class=list href="<tmpl_var name='elink'>"><tmpl_var name='text3'></a></td>
+	    <td><a class=list href="<tmpl_var name='elink'>"><tmpl_var name='text4'></a></td>
+	</tr>
+    </tmpl_if>
+    </tmpl_loop>
+    </table>
+</form>
+
+<tmpl_if name="note">
+<font size="-1">Keywords with aliases marked with (a)</font>
+</tmpl_if>
+
+<tmpl_include name='footer.tmpl'>

@@ -1,0 +1,52 @@
+Save MMS Application
+====================
+
+What it is?
+===========
+
+It is a http server/application which listens for MBuni requests (MMS) on a configurable port. 
+When it receives a request, it saves the attachments of the MMS message to a specified directory.
+
+Configuration:
+==============
+
+Find the config.yaml in the config/ directory. Only the port and the directory to save attachments to are 
+configurable at this point.
+
+Installling:
+============
+
+Just copy the files. You are going to need to have Ruby and (optionally) the rake gem installed. 
+Also, you need the library files which are located in the mmslib directory. Simply copy this directory
+to somewhere on your system and 
+
+export RUBYLIB=/path/to/mmslib 
+
+before running the save mms application.
+
+Running:
+========
+
+In the top directory type
+$ ruby script/server 
+
+or simple run rake, which will do the same.
+
+MBuni
+=====
+
+You need to setup an MBuni service that uses the save mms app. Here is an example:
+
+group = mms-service
+name = default
+post-url = http://localhost:3111/savemms
+http-post-parameters = keyword=%k&images=%i&video=%v&text=%t&audio=%a&binary=%b&other=%o
+catch-all = true
+keyword = test
+omit-empty = no
+service-code = regular
+suppress-reply = true
+
+Note, that the savemms app uses those particular cgi parameters, if other names are used, attachments
+will not be saved correctly.
+

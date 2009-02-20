@@ -1,0 +1,34 @@
+2008-10-30 09:11:57 [15083] [9] DEBUG:   data: 44 61 74 65 3a 20 54 68 75 2c 20 33 30 20 4f 63   Date: Thu, 30 Oc
+2008-10-30 09:11:57 [15083] [9] DEBUG:   data: 74 20 32 30 30 38 20 30 38 3a 31 31 3a 34 37 20   t 2008 08:11:47 
+2008-10-30 09:11:57 [15083] [9] DEBUG:   data: 47 4d 54 0d 0a 53 65 72 76 65 72 3a 20 41 70 61   GMT..Server: Apa
+2008-10-30 09:11:57 [15083] [9] DEBUG:   data: 63 68 65 2f 32 2e 30 2e 35 34 20 28 46 65 64 6f   che/2.0.54 (Fedo
+2008-10-30 09:11:57 [15083] [9] DEBUG:   data: 72 61 29 0d 0a 4d 65 73 73 61 67 65 2d 49 44 3a   ra)..Message-ID:
+2008-10-30 09:11:57 [15083] [9] DEBUG:   data: 20 31 32 32 35 33 35 34 33 31 37 0d 0a 43 6f 6e    1225354317..Con
+2008-10-30 09:11:57 [15083] [9] DEBUG:   data: 74 65 6e 74 2d 4c 65 6e 67 74 68 3a 20 30 0d 0a   tent-Length: 0..
+2008-10-30 09:11:57 [15083] [9] DEBUG:   data: 43 6f 6e 74 65 6e 74 2d 54 79 70 65 3a 20 74 65   Content-Type: te
+2008-10-30 09:11:57 [15083] [9] DEBUG:   data: 78 74 2f 68 74 6d 6c 0d 0a 43 6f 6e 6e 65 63 74   xt/html..Connect
+2008-10-30 09:11:57 [15083] [9] DEBUG:   data: 69 6f 6e 3a 20 63 6c 6f 73 65 0d 0a 0d 0a         ion: close....
+2008-10-30 09:11:57 [15083] [9] DEBUG: Octet string dump ends.
+2008-10-30 09:11:57 [15083] [8] DEBUG: DUMPING RBODY:
+2008-10-30 09:11:57 [15083] [8] DEBUG: Octet string at 15f0d8:
+2008-10-30 09:11:57 [15083] [8] DEBUG:   len:  0
+2008-10-30 09:11:57 [15083] [8] DEBUG:   size: 0
+2008-10-30 09:11:57 [15083] [8] DEBUG:   immutable: 0
+2008-10-30 09:11:57 [15083] [8] DEBUG: Octet string dump ends.
+2008-10-30 09:11:57 [15083] [8] DEBUG: ret is (null)
+2008-10-30 09:11:57 [15083] [8] DEBUG: mms_sendtommsc: didn't get valid id from mm7eaif_send.
+2008-10-30 09:11:57 [15083] [8] DEBUG: MMS_SEND_ERROR_CODE: -2
+2008-10-30 09:11:57 [15083] [8] DEBUG: dlr_entry_fname: [a29427285577eef0a78defc13d914f18d58dbbb3]
+2008-10-30 09:11:57 [15083] [8] DEBUG: ----->Locked inode 0
+2008-10-30 09:11:57 [15083] [8] DEBUG: <-----UnLocked inode 0
+2008-10-30 09:11:57 [15083] [8] INFO: Sending delivery-report skipped: `url' is empty, `group_id'=[dummy], `msgid'=[a29427285577eef0a78defc13d914f18d58dbbb3], report-type=[delivery-report], status=[Rejected]
+2008-10-30 09:11:57 [15083] [8] INFO: Failed MMSBox Outgoing Queue MMS Send: From +558586214677/TYPE=PLMN, to 889/TYPE=PLMN, msgsize=107: msgid=[NULL]
+2008-10-30 09:11:57 [15083] [8] DEBUG: e->to[0]=e3e38 x->process=0
+2008-10-30 09:11:57 [15083] [8] DEBUG: free envelope: /home/realtime/mbuni/store/dummy/mmsbox_outgoing/qf1318.15.x762.638
+2008-10-30 09:11:57 [15083] [8] DEBUG: free envelope: /home/realtime/mbuni/store/dummy/mmsbox_outgoing/df1318.15.x762.638
+2008-10-30 09:11:57 [15083] [8] DEBUG: Locked released for inode 0
+2008-10-30 09:11:57 [15083] [8] DEBUG: ----->Locked inode 0
+2008-10-30 09:11:57 [15083] [8] DEBUG: <-----UnLocked inode 0
+2008-10-30 09:11:57 [15083] [8] DEBUG: qt->deliver terminates: 1
+2008-10-30 09:11:57 [15083] [8] PANIC: gwlib/thread.c:125: mutex_lock_real: Assertion `mutex != NULL' failed.
+

@@ -1,0 +1,236 @@
+diff -ur mbuni-1.3.0/mmlib/mms_mmbox.c ../mbuni-1.3.0/mmlib/mms_mmbox.c
+--- mbuni-1.3.0/mmlib/mms_mmbox.c	2006-09-28 16:34:39.000000000 +0200
++++ ../mbuni-1.3.0/mmlib/mms_mmbox.c	2008-08-14 10:04:12.000000000 +0200
+@@ -18,6 +18,9 @@
+ #include <errno.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
++// 2008-03-10: PII to compile for Solaris 10 gcc 4.2.1
++#include <fcntl.h>
++//
+ #include <unistd.h>
+ #include <ctype.h>
+ 
+diff -ur mbuni-1.3.0/mmlib/mms_msg.c ../mbuni-1.3.0/mmlib/mms_msg.c
+--- mbuni-1.3.0/mmlib/mms_msg.c	2007-07-19 19:48:01.000000000 +0200
++++ ../mbuni-1.3.0/mmlib/mms_msg.c	2008-08-14 10:04:12.000000000 +0200
+@@ -984,7 +984,7 @@
+ 	       wsp_pack_application_header(os, field, value);
+ 	  else {
+ 	       pack_short_integer(os, htype);
+-	       mms_pack_well_known_field(os, htype, value);	       
++	       mms_pack_well_known_field(os, htype, value);
+ 	  }
+      loop1:
+ 	  if (field) octstr_destroy(field);
+@@ -1000,7 +1000,6 @@
+ 	  warning(0, "MMS: Content type missing in encode_headers!");
+      
+      return 0;
+-
+ }
+ 
+ /* Does basic fixups on a message. */
+@@ -1445,7 +1444,7 @@
+      
+      /* Fix-up date strings: Put it in GMT format, since it might not be. */
+      fixup_date(m->headers, octstr_imm("Date"));
+-     fixup_date(m->headers, octstr_imm("X-Mms-Expiry"));
++     // fixup_date(m->headers, octstr_imm("X-Mms-Expiry"));
+      fixup_date(m->headers, octstr_imm("X-Mms-Delivery-Time"));
+      fixup_date(m->headers, octstr_imm("X-Mms-Previously-Sent-Date"));
+      fixup_date(m->headers, octstr_imm("X-Mms-Reply-Charging-Deadline"));
+diff -ur mbuni-1.3.0/mmlib/mms_queue.c ../mbuni-1.3.0/mmlib/mms_queue.c
+--- mbuni-1.3.0/mmlib/mms_queue.c	2007-04-13 12:15:11.000000000 +0200
++++ ../mbuni-1.3.0/mmlib/mms_queue.c	2008-08-14 10:04:12.000000000 +0200
+@@ -17,6 +17,10 @@
+ #include <errno.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
++#ifdef SunOS
++#include <strings.h>
++#include <fcntl.h>
++#endif
+ #include <unistd.h>
+ #include <ctype.h>
+ 
+@@ -159,7 +163,11 @@
+      
+      strncpy(xqf, octstr_get_cstr(fname), sizeof xqf);
+      
++#ifdef SunOS
++     if ((fd = open(octstr_get_cstr(fname), O_RDWR)) < 0) {
++#else
+      if ((fd = open(octstr_get_cstr(fname), O_RDONLY)) < 0) {
++#endif
+ 	  octstr_destroy(fname);
+ 	  return NULL;
+      } else if (mm_lockfile(fd, octstr_get_cstr(fname), shouldblock) != 0) {
+diff -ur mbuni-1.3.0/mmlib/mms_util.c ../mbuni-1.3.0/mmlib/mms_util.c
+--- mbuni-1.3.0/mmlib/mms_util.c	2007-07-20 14:30:31.000000000 +0200
++++ ../mbuni-1.3.0/mmlib/mms_util.c	2008-08-14 10:04:12.000000000 +0200
+@@ -18,6 +18,10 @@
+ #include <dlfcn.h>
+ #include <strings.h>
+ 
++#ifdef SunOS
++#include <fcntl.h>
++#endif
++
+ #include <errno.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
+@@ -813,10 +817,22 @@
+ static int lockfile(int fd, int shouldblock)
+ {
+      int n, stop;     
++#ifdef SunOS
++     int flg = shouldblock ? F_SETLKW : F_SETLK;
++     flock_t lock;
++#else
+      unsigned flg = shouldblock ? 0 : LOCK_NB;
+-
++#endif
+      do {
++#ifdef SunOS
++          lock.l_whence = SEEK_SET;
++          lock.l_start = 0;
++          lock.l_len = 0;
++          lock.l_type = F_WRLCK;
++          n = fcntl(fd, flg, &lock);
++#else
+        n = flock(fd, LOCK_EX|flg);
++#endif
+        if (n < 0) {
+ 	    if (errno == EINTR)
+ 		 stop = 0;
+Only in ../mbuni-1.3.0/mmsbox: .svn
+diff -ur mbuni-1.3.0/mmsbox/bearerbox.c ../mbuni-1.3.0/mmsbox/bearerbox.c
+--- mbuni-1.3.0/mmsbox/bearerbox.c	2007-07-16 20:02:30.000000000 +0200
++++ ../mbuni-1.3.0/mmsbox/bearerbox.c	2008-08-14 10:04:13.000000000 +0200
+@@ -479,14 +479,14 @@
+ 	       if (h.body) octstr_dump(h.body, 0);
+ 	       if (h.ip) octstr_dump(h.ip, 0);
+ #endif
+-	       if (auth_check(m->incoming.user, 
++	       if (auth_check(m->incoming.user,
+ 			      m->incoming.pass, 
+ 			      h.headers) != 0) { /* Ask it to authenticate... */
+ 		    List *hh = http_create_empty_headers();
+ 		    http_header_add(hh, "WWW-Authenticate", 
+ 				    "Basic realm=\"" MM_NAME "\"");
+ 		    http_send_reply(h.client, HTTP_UNAUTHORIZED, hh, 
+-				    octstr_imm("Authentication failed"));			   
++				    octstr_imm("Authentication failed"));   
+ 		    http_destroy_headers(hh);
+ 		    info(0, "MMSBox: Auth failed, incoming connection, MMC group=[%s]",
+ 			 m->id ? octstr_get_cstr(m->id) : "(none)");
+@@ -665,7 +665,8 @@
+      int mtype = mms_messagetype(m);
+      int hstatus = HTTP_OK;
+      List *rh = http_create_empty_headers(), *ph = NULL;
+-     Octstr *body = NULL, *rbody = NULL, *url = NULL, *xver; 
++     Octstr *body = NULL, *rbody = NULL, *url = NULL, *xver;
++	Octstr *hex_body;
+      char *msgtype;
+ 
+      
+@@ -702,7 +703,14 @@
+      mms_replace_header_value(m, "To", octstr_get_cstr(to));
+      mms_replace_header_value(m,"X-Mms-Transaction-ID",
+ 			      transid ? octstr_get_cstr(transid) : "000");
+-     body = mms_tobinary(m);	       
++     body = mms_tobinary(m);
++
++
++	// CLEANME: Debug print
++	hex_body = octstr_duplicate(body);
++	octstr_binary_to_hex(hex_body,1);
++	debug("mm7eaif_send",0,"Body plan: [%s]", octstr_get_cstr(body));	
++	debug("mm7eaif_send",0,"Body as hex: [%s]", octstr_get_cstr(hex_body));
+ 
+      hstatus = mmsbox_url_fetch_content(HTTP_METHOD_POST, mmc->mmsc_url, rh, body, &ph, &rbody);
+ 
+@@ -714,7 +722,7 @@
+ 	  
+ 	  resp = octstr_imm("Ok");
+ 	  if (mresp && mms_messagetype(mresp) == MMS_MSGTYPE_SEND_CONF)
+-	       resp = mms_get_header_value(mresp, octstr_imm("X-Mms-Response-Status"));	  
++	       resp = mms_get_header_value(mresp, octstr_imm("X-Mms-Response-Status"));
+ 	  if (octstr_case_compare(resp, octstr_imm("ok")) != 0)
+ 	       hstatus = HTTP_STATUS_SERVER_ERROR; /* error. */
+ 	  else if (mresp)
+@@ -725,9 +733,9 @@
+      }
+ 
+      if (hstatus < 0)
+-	  ret = NULL; 
++	  ret = NULL;
+      else {
+-	  hstatus = http_status_class(hstatus);	  
++	  hstatus = http_status_class(hstatus); 
+ 	  if (hstatus == HTTP_STATUS_SERVER_ERROR)
+ 	       ret = NULL;
+ 	  else if (!ret) 
+@@ -757,7 +765,6 @@
+      return ret;
+ }
+ 
+-
+ static int mms_sendtommsc(MmscGrp *mmc, Octstr *from, Octstr *to, Octstr *transid, 
+ 			  Octstr *linkedid, 
+ 			  char *vasid,
+diff -ur mbuni-1.3.0/mmsbox/dlr.c ../mbuni-1.3.0/mmsbox/dlr.c
+--- mbuni-1.3.0/mmsbox/dlr.c	2007-04-02 07:16:15.000000000 +0200
++++ ../mbuni-1.3.0/mmsbox/dlr.c	2008-08-14 10:04:13.000000000 +0200
+@@ -19,6 +19,11 @@
+ 
+ #include <sys/types.h>
+ #include <sys/stat.h>
++
++#ifdef SunOS
++#include <fcntl.h>
++#endif
++
+ #include <unistd.h>
+ #include "mmsbox.h"
+ #include "mms_queue.h"
+diff -ur mbuni-1.3.0/mmsbox/mmsbox.c ../mbuni-1.3.0/mmsbox/mmsbox.c
+--- mbuni-1.3.0/mmsbox/mmsbox.c	2007-07-25 07:37:15.000000000 +0200
++++ ../mbuni-1.3.0/mmsbox/mmsbox.c	2008-08-14 10:04:13.000000000 +0200
+@@ -1138,6 +1138,7 @@
+ 
+ 	  username = http_cgi_variable(cgivars, "username");
+ 	  password = http_cgi_variable(cgivars, "password");
++	  debug("sendmms_func",0,"username/password = [%s,%s]", octstr_get_cstr(username), octstr_get_cstr(password));
+ 
+ 	  if ((u = auth_user(username, password)) != NULL && 
+ 	      is_allowed_ip(sendmms_port.allow_ip, sendmms_port.deny_ip, ip)) {
+diff -ur mbuni-1.3.0/mmsbox/mmsbox_cfg.c ../mbuni-1.3.0/mmsbox/mmsbox_cfg.c
+--- mbuni-1.3.0/mmsbox/mmsbox_cfg.c	2007-07-19 21:33:11.000000000 +0200
++++ ../mbuni-1.3.0/mmsbox/mmsbox_cfg.c	2008-08-14 10:04:13.000000000 +0200
+@@ -379,6 +379,7 @@
+ 			 int ch;
+ 			 p->name = octstr_copy(y, 0, ii);
+ 			 p->value = NULL;
++			 p->type = NO_PART;
+ 
+ 			 if (octstr_get_char(y, ii+1) == '%') {
+ 			      switch(ch = octstr_get_char(y, ii+2)) {
+Only in ../mbuni-1.3.0/mmsc: .svn
+diff -ur mbuni-1.3.0/mmsc/mms_billing_shell.c ../mbuni-1.3.0/mmsc/mms_billing_shell.c
+--- mbuni-1.3.0/mmsc/mms_billing_shell.c	2006-10-27 15:25:44.000000000 +0200
++++ ../mbuni-1.3.0/mmsc/mms_billing_shell.c	2008-08-14 10:04:12.000000000 +0200
+@@ -13,6 +13,10 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ 
++#ifdef SunOS
++#include <sys/wait.h>
++#endif
++
+ #include "mms_billing.h"
+ 
+ static Octstr *script = NULL;
+Only in mbuni-1.3.0: realtime-mbuni-1.3.0.patch.1
+Only in ../mbuni-1.3.0/: util

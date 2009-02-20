@@ -1,0 +1,17 @@
+<tmpl_include name="header.tmpl">
+<p>
+<p>
+<center>
+<table border=1 cellspacing=0 cellpadding=10>
+<tr><td>
+    <form name="login" method="post" action="<tmpl_var name='pname'>">
+    <input type="hidden" name="rm" value="login">
+    <input type="hidden" name="lrm" value="<tmpl_var name='lrm'>">
+    <input type="hidden" name="instance" value="<tmpl_var name='instance'>">
+	<h1>Enter password:</h1><br>
+        <input name="digest" type="password" size=25>
+    </form>
+</td></tr>
+</form>
+</center>
+<tmpl_include name="footer.tmpl">

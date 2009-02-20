@@ -1,0 +1,546 @@
+#!/usr/bin/env perl
+
+use Data::Dumper;
+use Getopt::Long;
+
+my %settings;
+
+#---------------------------------------------
+# Get the options
+#---------------------------------------------
+if (! GetOptions('instance=s'  => \$settings{'instance'},
+	         'startdate=s' => \$settings{'startdate'},
+	         'enddate=s'   => \$settings{'enddate'},
+	         'smscs=s'     => \$settings{'smscs'},
+	         'services=s'  => \$settings{'services'},
+	         'msisdn=s'    => \$settings{'msisdn'},
+	         'lacs=s'      => \$settings{'lacs'},
+	         'dlrmask'     => \$settings{'dlrmask'},
+	         'show=s'      => \$settings{'show'},
+	         'total'       => \$settings{'total'},
+	         'subtotal=s'  => \$settings{'subtotal'},
+	 	 	 'orderby=s'   => \$settings{'orderby'},
+	         'msg'         => \$settings{'msgs'},
+	         'search=s'    => \$settings{'search'},
+			 'log-format=s' => \$settings{'log-format'},
+	         'format=s'    => \$settings{'format'})) {
+    die ("Wrong arguments !!");
+}
+
+# ---------------------------------------------------------------
+# Setup global variables
+# ---------------------------------------------------------------
+
+$settings{'log-format'} = "realgate" unless $settings{'log-format'};
+
+# What fields to include in output depending on log-format (order significant!)
+my %details_fields = (
+	"realgate" => [ DATETIME, SMSC, SERVICE, MSISDN, LAC, TC, DLR, CID, MSG ],
+	"mbuni" => [ DATETIME, MMSC, SERVICE, MSISDN, MSGID, TYPE ]
+);
+
+my %totals_fields = (
+	"realgate" => [ TYPE, DATE, SMSC, SERVICE, LAC, DLR ],
+	"mbuni" => [ TYPE, DATE, MMSC, SERVICE ]
+);
+
+# What fields to include in header summary output depending on log-format (order significant!)
+my %summary_fields = (
+	"realgate" => [ startdate,enddate,services,smscs,msisdn,lacs,search ],
+	"mbuni" => [ startdate,enddate,services,mmscs,msisdn,lacs,search ]
+);
+
+# If a specific field description is not defined here,
+# the key is used as description, so only exceptions needs to be added.
+my %field_description = (
+	DATETIME => "Date  Time",
+	MSG => "Message",
+	search => "Msg search text"
+);
+sub describe_field {
+	my $field = shift;
+	$field_description{$field} ? $field_description{$field} : $field;
+}
+
+my %field_value_description = (
+	DLR => "DLR",
+	SENT => "Sent",
+	RECEIVE => "Received",
+	FAILED => "Failed"
+);
+sub describe_value {
+	my $value = shift;
+	$field_value_description{$value} ? $field_value_description{$value} : $value;
+}
+
+my $error_lines = 0;
+my %seen_msisdns = ();
+
+# Read realgate configuration file
+my %conf_defs = read_conf_defs($settings{'log-format'});
+
+# Merge realgate_conf settings into %settings
+@settings{keys %conf_defs} = values %conf_defs;
+
+$settings{'gateway-config-file'} = 
+	$settings{(uc $settings{'log-format'}) . "_HOME"} .
+	"/etc/" . (($settings{'log-format'} eq "realgate") ? "kannel" : "mbuni") . 
+	"." . $settings{'instance'} . ".conf";
+	
+$settings{'access-log'} = access_log_file_path($settings{'gateway-config-file'});
+
+# ---------- Setup handlers ----------
+# Different parameters such as "format" requires different handling. This is done
+# by specifying functions for handling this before the logs are processed.
+# Preprocessing handlers: are called before the logs are actually processed
+# log-line handlers: are called for each relevant line in the log file
+# post-processing handlers: are called when all lines in the log have been processed
+# The functions in each category are executed in the order they apper on the list
+if ($settings{'format'} eq "html") {
+	push(@{$settings{'pre-processing'}}, print_html_header);
+	if ($settings{'msgs'}) {
+		push(@{$settings{'pre-processing'}}, print_html_messages_table_header);
+		push(@{$settings{'logline-handlers'}}, logline_print_html);
+		push(@{$settings{'post-processing'}}, print_html_messages_table_footer);
+	}
+	push(@{$settings{'post-processing'}}, print_html_totals) if $settings{'total'};
+	push(@{$settings{'post-processing'}}, print_html_footer);
+} elsif ($settings{'format'} eq "csv") {
+	push(@{$settings{'pre-processing'}}, print_csv_header);
+	push(@{$settings{'logline-handlers'}}, logline_print_csv);
+	push(@{$settings{'post-processing'}}, print_csv_totals) if $settings{'total'};
+} elsif ($settings{'format'} eq "msisdn") {
+	push(@{$settings{'logline-handlers'}}, logline_handle_msisdn);
+	push(@{$settings{'post-processing'}}, print_msisdns);
+} else {
+	die("Unknown output format $settings{'format'}");
+}
+
+if ($settings{'subtotal'} ne "") {
+	push(@{$settings{'logline-handlers'}}, logline_register_subtype);
+	push(@{$settings{'logline-handlers'}}, logline_count);
+}
+
+# Call all preprocessing functions (e.g. print headers etc.)
+foreach $function (@{$settings{'pre-processing'}}) { &$function(); }
+
+# Process the relevant log files
+process_logs(relevant_logs($settings{'access-log'}));
+
+# Call all the post processing functions (e.g. print footers etc.)
+foreach $function (@{$settings{'post-processing'}}) { &$function(); }
+
+#-----------------------------------------------
+# Description: Get the name of the access log file name from  the kannel conf file
+#-----------------------------------------------
+sub access_log_file_path {
+	my $cfg = shift;
+	open(FH, "<$cfg") or die "Can't open $cfg";
+	while ($line = <FH>) {
+		chop($line);
+		next if ($line =~/^#/);
+		if ($line =~ /access-log *=/) {
+			($var, $value) = split(/=/, $line);
+			$value =~ s/ //g;
+			$value =~ s/"//g;
+			
+			return $value;
+		}
+	}
+}
+
+#-----------------------------------------------
+# Get relevant information from /etc/realgate.def
+#-----------------------------------------------
+sub read_conf_defs {
+	my $conf_file_name = $settings{'log-format'} . ".def";
+	my %realgate_config;
+	open(FH, "<./$conf_file_name") or # look for it here (testing purposes)
+	open(FH, "</etc/$conf_file_name") or
+	die "Can't open /etc/$conf_file_name";
+	while ($line = <FH>) {
+		chop($line);
+
+		# skip comment lines
+		next if ($line =~ /^#/);
+
+		# is it a line containing a '='
+		if ($line =~ /=/) {
+			($var, $value) = split(/=/, $line);
+
+			# skip spaces and '"'
+			$value =~ s/ //g;
+			$value =~ s/"//g;
+			
+			# set it as
+			$realgate_config{$var} = $value;
+		}
+	}
+	close(FH);
+
+	%realgate_config
+}
+
+#---------------------------------------------
+# Check if the user doesn't overheat the system
+# if no msisdn or text is specified then
+# search for max a week.
+#---------------------------------------------
+sub check_query {
+	if (($msisdn eq "") and ($search eq "")) {
+	    # check if (enddate-startdate) < 1 week
+	    ($sy,$sm,$sd) = split(/-/, $startdate);
+	    ($ey,$em,$ed) = split(/-/, $enddate);
+	    if ($sy ne $ey or (($em*30+$ed)-($sm*30+$sd)>7) ) {
+		die "Search not allowed !";
+	    }
+	}
+}
+
+#---------------------------------------------
+# Find relevant access logfiles according to 
+# start-date and end-date
+#---------------------------------------------
+sub relevant_logs {
+	my @logfiles = ();
+	my $last = "";
+
+	my $accesslog = $settings{'access-log'};
+	my $startdate = $settings{'startdate'};
+ 	my $enddate = $settings{'enddate'};
+	
+	foreach (`ls -1 $accesslog.* 2> /dev/null`) {
+	    chop($_);
+
+	    # get the date part of the logfile
+	    $_ =~ s/$accesslog.//;
+
+	    # test against startdate and enddate
+	    next if ($_ lt $startdate);
+	    next if (($_ gt $enddate) && ($last ge $enddate));
+
+	    # save logfile, and remember it to the next run
+	    push @logfiles, "$accesslog.$_";
+	    $last = $_;
+	}
+
+	# include current logfile if enddate is after the last
+	# rotated one
+	push @logfiles, "$accesslog" if ($enddate gt $last);
+
+	# include current logfile, if nothing else found
+	push @logfiles, "$accesslog" if ($#logfiles lt 0);
+
+	@logfiles
+}
+
+
+#---------------------------------------------
+# Read the access logs 
+#---------------------------------------------
+sub process_logs {
+	my @logs = @_;
+	
+	foreach $logfile (@logs) {
+		open(FH, "<$logfile") || die "Can't open $logfile";
+		my @lines = <FH>;
+		close(FH);
+
+		foreach $line (@lines) {
+			chop($line);
+			
+			# skip empty lines
+			next if ($line eq "");
+
+			# skip lines with no ['s
+			next unless ($line =~ /\[/);
+			
+			#debug "Before splitting";
+
+			# split the line
+			if ($settings{'log-format'} eq "mbuni") {
+				%entry = split_logline_mbuni($line);
+			} elsif ($settings{'log-format'} eq "realgate") {
+				%entry = split_logline_realgate($line);
+			}
+			
+			if (not %entry) {
+				print "Caught an errror line\n";
+				$error_lines++;
+				next;
+			}
+			
+			# Add position and file to entry
+			# If we need to add sorting later..
+			$entry{LOGFILE} = $logfile;
+			$entry{FILEPOS} = tell(FH);
+			
+			# Check start/end date
+			next if ($entry{DATE} lt $settings{'startdate'});
+			next if ($entry{DATE} gt $settings{'enddate'});
+
+			# Fix type to uppercase, only one word
+			$entry{TYPE} = uc $entry{TYPE};
+			$entry{TYPE} = "FAILED" if ($entry{'TYPE'} =~ /FAILED/);
+
+			$entry{DATETIME} = $entry{DATE} . " " . $entry{TIME};
+
+			if ($last eq $entry{DATETIME}) {
+				$n++;
+			} else {
+				$n=0;
+			}
+			$last=$entry{DATETIME};
+			$entry{DATETIME} .= ".$n";
+
+			# set msisdn and lac according to type
+			$entry{MSISDN} = ($entry{TYPE} !~ /RECEIVE|DLR/) ? $entry{TO}: $entry{FROM};
+			$entry{LAC}   = ($entry{TYPE} !~ /RECEIVE|DLR/) ? $entry{FROM} : $entry{TO};
+
+			# Fix orange LAC
+			# (this is only nessesary for the old logfiles, before April-something)
+			$entry{LAC} = "1202" if ($entry{SMSC} eq "orange");
+			
+			# Fix SMSC name for tdc/telia 
+			# (they have a "billing" connection we don't want to use)
+			$entry{SMSC} = 'tdc' if ($entry{SMSC} =~ /tdc/);
+			$entry{SMSC} = 'telia' if ($entry{SMSC} =~ /telia/);
+
+			# Check LAC
+			if ($settings{'lacs'} ne "") {
+				next if ($entry{LAC} ne $settings{'lacs'});
+			}
+
+			# Check phone number
+			if ($settings{'msisdn'} ne "") {
+				next if ($settings{'msisdn'} ne $entry{MSISDN});
+			}
+
+			# Check dlr-mask
+			if ($settings{'dlrmask'}) {
+				next unless ($entry{DLR} > 0);
+			}
+
+			# Check service
+			if ($settings{'services'} ne "") {
+				next unless ($settings{'services'} =~ /^$entry{SERVICE}$/);
+			}
+
+			# Check smsc
+			if (($settings{'smscs'} ne "") && ($entry{SMSC} ne "")) {
+				next unless ($settings{'smscs'} =~ /$smsc/);
+			}
+
+			# Check the search option
+			if ($settings{'search'} ne "") {
+				my ($dummy,$msg2);
+				($dummy,$msg2) = split(/:/,$entry{MSG},2);
+				next unless ($msg2 =~ /$settings{'search'}/i);
+			}
+
+			# Fix msg length
+			if (not $settings{'msgs'}) {
+				$entry{MSG} = substr($entry{MSG},0,40).".." if (length($entry{MSG}) > 41);
+			}
+
+			# Fix HTML in msg
+			$entry{MSG} =~ s/</&lt;/g;
+			$entry{MSG} =~ s/>/&gt;/g;
+
+			# Handle empty service or smsc
+			$entry{SERVICE} = (defined($entry{SERVICE}) && length($entry{SERVICE})) ? $entry{SERVICE} : "-";
+			$entry{SMSC} = (defined($entry{SMSC}) && length($entry{SMSC})) ? $entry{SMSC} : "-";
+			$entry{MMSC} = (defined($entry{MMSC}) && length($entry{MMSC})) ? $entry{MMSC} : "-";
+
+			# Decide how to handle this logline
+			die("Order-by is not supported anymore..") unless ($settings{'order-by'} eq "");
+
+			foreach $line_handler (@{$settings{'logline-handlers'}}) {
+				&$line_handler(%entry);
+			}
+		}
+	}
+}
+
+# ------------------------------------------------------------------------------
+# Functions for splitting log lines into hash
+# ------------------------------------------------------------------------------
+sub split_logline_realgate {
+	my $line = shift;
+	if ($line =~ /^([0-9\-]{10}) ([0-9:]{8}) (.+?) SMS \[SMSC:(.*?)\] \[SVC:(.*?)\] \[ACT:.*\] \[from:(.*?)\] \[to:(.*?)\] \[tc:(.*?)\] \[flags:.:.:.:.:(.)\] \[CID:([0-9]*)\] \[msg:([0-9]+:.*?)\] \[udh:[0-9]+:.*?\]$/i) {
+		( DATE => $1, TIME => $2,	TYPE => $3,	SMSC => $4,	SERVICE => $5,	FROM => $6,	TO => $7,	TC => $8, 	DLR=> $9, CID => $10,	MSG => $11 );
+	} elsif ($line =~ /^([0-9\-]{10}) ([0-9:]{8}) (.+?) SMS \[SMSC:(.*?)\] \[SVC:(.*?)\] \[ACT:.*\] \[from:(.*?)\] \[to:(.*?)\] \[tc:([0-9]*)\] \[flags:.:.:.:.:(.)\] \[msg:([0-9]+:.*?)\] \[udh:[0-9]+:.*?\]$/i) {
+		( DATE => $1, TIME => $2,	TYPE => $3,	SMSC => $4,	SERVICE => $5,	FROM => $6,	TO => $7,	TC => $8,	DLR => $9, MSG => $10,	CID => 0 );
+	}
+}
+
+sub split_logline_mbuni {
+	my $line = shift;
+	# Sending MMS:
+	# 2008-09-17 16:44:41 Sending failed MMS [INT:MMSBox] [ACT:] [MMSC:dummy] [from:2222/TYPE=PLMN] [to:21221261244845/TYPE=PLMN] [msgid:] [size=-1] [UA:] [MMBox:]
+	if ($line =~ /^([0-9\-]{10}) ([0-9:]{8}) (.+?) MMS \[INT:.*\] \[ACT:.*\] \[MMSC:(.*?)\] \[from:(.*?)\/TYPE=.*\] \[to:(.*?)\/TYPE=.*\] \[msgid:(.*?)\] \[size=(.*?)\] \[UA:.*\] \[MMBox:.*\]$/i) {
+		(DATE => $1, TIME => $2, TYPE => $3, MMSC => $4, FROM => $5,	TO => $6, MSGID => $7, SIZE => $8 );
+	# Dispatch MMS:
+	# 2008-09-04 14:11:26 Dispatch MMS [from:anon@unknown] [to:] [msgid:9-qf271.1.x945.80@Mbuni] [Keyword:] [Service:default really slow service] [Dispatch-status:success]
+	} elsif ($line =~ /^([0-9\-]{10}) ([0-9:]{8}) (.+?) MMS \[from:(.*?)\] \[to:(.*?)\] \[msgid:(.*?)\] [Keyword:\(.*?)] \[Service:(.*?)\] \[Dispatch-status:(.*?)\]$/i) {
+		(DATE => $1, TIME => $2, TYPE => $3,	FROM => $4, TO => $5, MSGID => $6, KEYWORD => $7, SERVICE => $8, STATUS => $9);
+	} 
+}
+
+# ----------------------------------------------------------------------
+# HTML printing rutines
+# ----------------------------------------------------------------------
+# Accesses globals: $settings, $details_fields and $field_description
+sub print_html_header {
+	print "<table class='stat-input'>\n";
+    print "<caption>Input parameters</caption>\n";
+
+	sub multi {	($_ eq "") ? "All" : $_; }
+	
+	sub row {
+		my $desc = describe_field($f);
+		my $value = $settings{$f};
+		print "<tr>\n\t<th>$desc</th>\n\t<td>" . (($desc =~ /.*s$/)?multi($value):$value) . "</td>\n</tr>\n";
+	}
+	
+	foreach $f (@{$summary_fields{$settings{'log-format'}}}) { row($f); }
+	
+    print "</table>\n";
+}
+	
+sub print_html_messages_table_header {
+	print "<table class=stat-details>\n";
+	print "<caption>Messages</caption>\n";
+	
+	print "<tr>\n";
+	foreach $f (@{$details_fields{$settings{'log-format'}}}) {
+		print "\t<th>" . describe_field($f) . "</th>\n";
+	}
+	print "</tr>\n";
+}
+
+sub print_html_messages_table_footer {
+	print "</table>\n";
+}
+
+sub print_html_footer {
+	if ($error_lines ne 0) {
+		print "<table class='stat-input'>\n";
+   		print "<tr><th>Lines not counted</th><td>$error_lines</td></tr>\n";
+		print "</table>\n";
+	}
+	print "\n<!-- Finito. -->\n";
+}
+
+sub print_html_totals {
+	print "<table class='stat-total'>\n";
+	print "<caption>Totals</caption>\n<tr>\n";
+	print "<tr>\n\t<th>&nbsp;</th>\n";
+	# FIXME; Might have to remove sort-order/subtotal key first
+	foreach $key (sort keys %{$sub{TYPE}}) { print "\t<th>" .  describe_value($key) . "</th>\n"; }
+	print "</tr>";
+	
+	foreach $key (sort keys %statistics) {
+		print "<tr><th>" . describe_value($key) . "</th>\n";
+		
+		foreach $type (sort keys %{$sub{TYPE}}) {
+			my $count = defined($statistics{$key}{TYPE}{$type}) ? $statistics{$key}{TYPE}{$type} : 0;
+			print "\t<td>" . $count . "</td>\n";
+		}
+		print "</tr>";
+	}
+}
+
+sub print_csv_totals {
+	print  "------------------------ $settings{'log-format'} statistics --------------------------\n";
+	print "$settings{'subtotal'},";
+	print join(",",(sort keys %{$sub{TYPE}})) . "\n";
+	
+	foreach $key (sort keys %statistics) {
+		print "$key,";
+		print join(",",
+				map(defined($statistics{$key}{TYPE}{$_}) ? $statistics{$key}{TYPE}{$_} : 0,
+					(sort keys %{$sub{TYPE}})));
+		print "\n";
+	}	
+	
+}
+
+sub print_csv_header {
+	print "---------------------------------------------------------\n";
+	print "Messages:\n";
+	print join(",", (@{$details_fields{$settings{'log-format'}}})) . "\n";
+	print "---------------------------------------------------------\n";	
+}
+
+# print_msisdn is a post-handler which prints all unique msisdn's
+sub print_msisdns {
+		my $n = 1;
+		foreach $msisdn (keys %seen_msisdns) {
+			print "$msisdn";
+			print "," unless ($n % length(%seen_msisdns));
+	        print "\n" unless ($n++ % 10);
+		}
+}
+
+# ----------------------------------------------------------------------
+# log line handlers
+# Depending on configuration, one or more of these gets called for each
+# matched line of the of lines in sequential order
+# ----------------------------------------------------------------------
+
+# --- Print the log line as HTML
+sub logline_print_html {
+	my %logline = @_;
+
+	if (($settings{'show'} ne "") and (uc $logline{TYPE} =~ uc $settings{'show'})) {
+		return;
+	}
+
+	# print html
+	print "<tr>\n";
+	foreach $field (@{$details_fields{$settings{'log-format'}}}) {
+		print "\t<td class='details' name='$field'>" . $logline{$field} . "</td>\n";
+	}
+	print "</tr>\n";
+}
+
+# -- Print the log line as text
+sub logline_print_text {
+	my %logline = @_;
+	
+	return if (($settings{'show'} ne "") and (uc $logline{TYPE} =~ uc $settings{'show'}));
+
+	foreach $field (@{$details_fields{$settings{'log-format'}}}) {
+		print "$field=" . $logline{$field} . " ";
+	}
+	print "\n";
+}
+
+sub logline_print_csv {
+	my %logline = @_;
+	print join(",", map(@logline{$_}, @{$details_fields{$settings{'log-format'}}})) . "\n";
+}
+
+sub logline_handle_msisdn {
+	my %logline = @_;
+	return if (($settings{'show'} ne "") and (uc $logline{TYPE} =~ uc $settings{'show'}));
+	$seen_msisdns{$logline{MSISDN}} = 1;
+}
+
+# Register subtypes: 
+# All distinct values of each included field of a logline gets registered in the sub array
+sub logline_register_subtype {
+	my %logline = @_;
+	foreach $field (@{$totals_fields{$settings{'log-format'}}}) {
+		$sub{$field}{$logline{$field}} = 1;
+	}
+}
+
+# Accumulates statistics by field indicated by subtotal for each log line
+sub logline_count {
+	my %logline = @_;
+	foreach $field (@{$totals_fields{$settings{'log-format'}}}) {
+		$statistics{$logline{$settings{'subtotal'}}}{$field}{$logline{$field}}++;
+	}
+}

@@ -1,0 +1,22 @@
+<smil>
+  <head>
+    <layout>
+      <root-layout width="160" height="140"/>
+      <region id="Image" width="160" height="120" left="0" top="0"/>
+      <region id="Text" width="160" height="20" left="0" top="120"/>
+    </layout>
+  </head>
+
+  <body>
+    <par dur="5s">
+      <img src="sample_image.jpg" region="Image" />
+      <text src="HelloWorld.txt" region="Text" />
+      <audio src="HelloWorld.amr" />
+    </par>
+    <par dur="10s">
+      <img src="cid:TheEnd.gif" region="Image" />
+      <text src="cid:TheEnd.txt" region="Text" />
+      <audio src="cid:YCBNYH.amr" />
+    </par>
+  </body>
+</smil>

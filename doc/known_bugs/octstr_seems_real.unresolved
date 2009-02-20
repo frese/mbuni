@@ -1,0 +1,146 @@
+2008-10-30 10:51:15 [17412] [9] DEBUG: HTTP: Sending request:
+2008-10-30 10:51:15 [17412] [9] DEBUG: Octet string at 8129ef8:
+2008-10-30 10:51:15 [17412] [9] DEBUG:   len:  820
+2008-10-30 10:51:15 [17412] [9] DEBUG:   size: 1024
+2008-10-30 10:51:15 [17412] [9] DEBUG:   immutable: 0
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 50 4f 53 54 20 2f 20 48 54 54 50 2f 31 2e 31 0d   POST / HTTP/1.1.
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 0a 48 6f 73 74 3a 20 32 31 32 2e 32 31 37 2e 35   .Host: 212.217.5
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 34 2e 35 31 3a 35 32 32 32 32 0d 0a 43 6f 6e 6e   4.51:52222..Conn
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 65 63 74 69 6f 6e 3a 20 6b 65 65 70 2d 61 6c 69   ection: keep-ali
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 76 65 0d 0a 43 6f 6e 74 65 6e 74 2d 54 79 70 65   ve..Content-Type
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 3a 20 61 70 70 6c 69 63 61 74 69 6f 6e 2f 76 6e   : application/vn
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 64 2e 77 61 70 2e 6d 6d 73 2d 6d 65 73 73 61 67   d.wap.mms-messag
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 65 0d 0a 43 6f 6e 74 65 6e 74 2d 4c 65 6e 67 74   e..Content-Lengt
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 68 3a 20 36 38 32 0d 0a 0d 0a 8c 80 98 53 51 6d   h: 682.......SQm
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 44 51 74 54 5a 4e 6a 4d 41 41 47 74 42 41 41 41   DQtTZNjMAAGtBAAA
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 41 42 41 41 41 41 72 41 41 41 41 41 41 00 8d 92   ABAAAArAAAAAA...
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 85 04 49 08 d3 e7 96 41 20 68 61 6d 69 64 00 8a   ..I....A hamid..
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 80 8f 81 90 81 86 81 8b 53 51 6d 44 51 74 54 5a   ........SQmDQtTZ
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 4e 6a 4d 41 41 47 74 42 41 41 41 41 42 41 41 41   NjMAAGtBAAAABAAA
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 41 72 41 41 41 41 41 41 00 89 18 80 2b 32 31 32   ArAAAAAA....+212
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 37 36 36 38 37 30 31 35 2f 54 59 50 45 3d 50 4c   76687015/TYPE=PL
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 4d 4e 00 97 2b 32 32 32 32 2f 54 59 50 45 3d 50   MN..+2222/TYPE=P
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 4c 4d 4e 00 84 1d b3 89 22 61 70 70 6c 69 63 61   LMN....."applica
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 74 69 6f 6e 2f 73 6d 69 6c 00 8a 22 3c 41 41 41   tion/smil.."<AAA
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 41 3e 00 02 28 83 33 1e 61 70 70 6c 69 63 61 74   A>..(.3.applicat
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 69 6f 6e 2f 73 6d 69 6c 00 85 6d 61 69 6e 2e 73   ion/smil..main.s
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 6d 69 6c 00 81 ea c0 22 3c 41 41 41 41 3e 00 3c   mil...."<AAAA>.<
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 73 6d 69 6c 3e 3c 68 65 61 64 3e 3c 6c 61 79 6f   smil><head><layo
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 75 74 3e 3c 72 6f 6f 74 2d 6c 61 79 6f 75 74 20   ut><root-layout 
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 62 61 63 6b 67 72 6f 75 6e 64 43 6f 6c 6f 72 3d   backgroundColor=
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 22 23 46 46 46 46 46 46 22 20 62 61 63 6b 67 72   "#FFFFFF" backgr
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 6f 75 6e 64 2d 63 6f 6c 6f 72 3d 22 23 46 46 46   ound-color="#FFF
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 46 46 46 22 20 68 65 69 67 68 74 3d 22 34 38 30   FFF" height="480
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 70 78 22 20 77 69 64 74 68 3d 22 36 34 30 70 78   px" width="640px
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 22 2f 3e 0d 0a 3c 72 65 67 69 6f 6e 20 69 64 3d   "/>..<region id=
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 22 49 6d 61 67 65 22 20 74 6f 70 3d 22 30 22 20   "Image" top="0" 
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 6c 65 66 74 3d 22 30 22 20 68 65 69 67 68 74 3d   left="0" height=
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 22 35 30 25 22 20 77 69 64 74 68 3d 22 31 30 30   "50%" width="100
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 25 22 20 66 69 74 3d 22 6d 65 65 74 22 2f 3e 0d   %" fit="meet"/>.
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 0a 3c 72 65 67 69 6f 6e 20 69 64 3d 22 54 65 78   .<region id="Tex
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 74 22 20 74 6f 70 3d 22 35 30 25 22 20 6c 65 66   t" top="50%" lef
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 74 3d 22 30 22 20 68 65 69 67 68 74 3d 22 35 30   t="0" height="50
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 25 22 20 77 69 64 74 68 3d 22 31 30 30 25 22 20   %" width="100%" 
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 66 69 74 3d 22 6d 65 65 74 22 2f 3e 0d 0a 3c 2f   fit="meet"/>..</
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 6c 61 79 6f 75 74 3e 0d 0a 3c 2f 68 65 61 64 3e   layout>..</head>
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 0d 0a 3c 62 6f 64 79 3e 3c 70 61 72 20 64 75 72   ..<body><par dur
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 3d 22 34 30 30 30 6d 73 22 3e 3c 74 65 78 74 20   ="4000ms"><text 
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 73 72 63 3d 22 73 6d 69 6c 2e 74 78 74 22 20 72   src="smil.txt" r
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 65 67 69 6f 6e 3d 22 54 65 78 74 22 3e 3c 70 61   egion="Text"><pa
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 72 61 6d 20 6e 61 6d 65 3d 22 66 6f 72 65 67 72   ram name="foregr
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 6f 75 6e 64 2d 63 6f 6c 6f 72 22 20 76 61 6c 75   ound-color" valu
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 65 3d 22 23 30 30 30 30 30 30 22 2f 3e 0d 0a 3c   e="#000000"/>..<
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 2f 74 65 78 74 3e 0d 0a 3c 2f 70 61 72 3e 0d 0a   /text>..</par>..
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 3c 2f 62 6f 64 79 3e 0d 0a 3c 2f 73 6d 69 6c 3e   </body>..</smil>
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 0d 0a 18 08 0d 83 85 73 6d 69 6c 2e 74 78 74 00   .......smil.txt.
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 81 ea 8e 73 6d 69 6c 2e 74 78 74 00 41 20 68 61   ...smil.txt.A ha
+2008-10-30 10:51:15 [17412] [9] DEBUG:   data: 6d 69 64 20                                       mid 
+2008-10-30 10:51:15 [17412] [9] DEBUG: Octet string dump ends.
+2008-10-30 10:51:15 [17412] [3] DEBUG:  MM7 Incoming, IP=[212.217.54.51], MMSC=[iam], dest_port=[42222] 
+2008-10-30 10:51:15 [17412] [3] DEBUG:  --> Enterred eaif send interface, blen=[683] <--- 
+2008-10-30 10:51:15 [17412] [3] DEBUG: WSP: decoding headers:
+2008-10-30 10:51:15 [17412] [3] DEBUG: Octet string at 8128ce8:
+2008-10-30 10:51:15 [17412] [3] DEBUG:   len:  40
+2008-10-30 10:51:15 [17412] [3] DEBUG:   size: 41
+2008-10-30 10:51:15 [17412] [3] DEBUG:   immutable: 0
+2008-10-30 10:51:15 [17412] [3] DEBUG:   data: 1e 61 70 70 6c 69 63 61 74 69 6f 6e 2f 73 6d 69   .application/smi
+2008-10-30 10:51:15 [17412] [3] DEBUG:   data: 6c 00 85 6d 61 69 6e 2e 73 6d 69 6c 00 81 ea c0   l..main.smil....
+2008-10-30 10:51:15 [17412] [3] DEBUG:   data: 22 3c 41 41 41 41 3e 00                           "<AAAA>.
+2008-10-30 10:51:15 [17412] [3] DEBUG: Octet string dump ends.
+2008-10-30 10:51:15 [17412] [3] DEBUG: WSP: decoded headers:
+2008-10-30 10:51:15 [17412] [3] DEBUG: Content-Type: application/smil; name="main.smil"; charset=utf-8
+2008-10-30 10:51:15 [17412] [3] DEBUG: Content-ID: <AAAA>
+2008-10-30 10:51:15 [17412] [3] DEBUG: WSP: End of decoded headers.
+2008-10-30 10:51:15 [17412] [3] DEBUG: WSP: decoding headers:
+2008-10-30 10:51:15 [17412] [3] DEBUG: Octet string at 8128ce8:
+2008-10-30 10:51:15 [17412] [3] DEBUG:   len:  24
+2008-10-30 10:51:15 [17412] [3] DEBUG:   size: 25
+2008-10-30 10:51:15 [17412] [3] DEBUG:   immutable: 0
+2008-10-30 10:51:15 [17412] [3] DEBUG:   data: 0d 83 85 73 6d 69 6c 2e 74 78 74 00 81 ea 8e 73   ...smil.txt....s
+2008-10-30 10:51:15 [17412] [3] DEBUG:   data: 6d 69 6c 2e 74 78 74 00                           mil.txt.
+2008-10-30 10:51:15 [17412] [3] DEBUG: Octet string dump ends.
+2008-10-30 10:51:15 [17412] [3] DEBUG: WSP: decoded headers:
+2008-10-30 10:51:15 [17412] [3] DEBUG: Content-Type: text/plain; name="smil.txt"; charset=utf-8
+2008-10-30 10:51:15 [17412] [3] DEBUG: Content-Location: smil.txt
+2008-10-30 10:51:15 [17412] [3] DEBUG: WSP: End of decoded headers.
+2008-10-30 10:51:15 [17412] [3] DEBUG: Reporting on fields after substitutions:
+2008-10-30 10:51:15 [17412] [3] DEBUG: FROM: +21276687015/TYPE=PLMN
+2008-10-30 10:51:15 [17412] [3] DEBUG: TO[0]: +2222/TYPE=PLMN
+2008-10-30 10:51:15 [17412] [3] DEBUG: WSP: Mapping `application/vnd.wap.multipart.related', WSP 1.2 to 0x0033.
+2008-10-30 10:51:15 [17412] [3] DEBUG: WSP: Mapping `type', WSP 1.2 to 0x0009.
+2008-10-30 10:51:15 [17412] [3] DEBUG: WSP: Mapping `start', WSP 1.2 to 0x000a.
+2008-10-30 10:51:15 [17412] [3] DEBUG: WSP: Mapping `application/smil', WSP 1.2 to 0xffffffff.
+2008-10-30 10:51:15 [17412] [3] DEBUG: WSP: Mapping `name', WSP 1.2 to 0x0005.
+2008-10-30 10:51:15 [17412] [3] DEBUG: WSP: Mapping `charset', WSP 1.2 to 0x0001.
+2008-10-30 10:51:15 [17412] [3] DEBUG: WSP: Mapping `Content-ID', WSP 1.3 to 0x0040.
+2008-10-30 10:51:15 [17412] [3] DEBUG: WSP: Mapping `Content-Type', WSP 1.3 to 0x0011.
+2008-10-30 10:51:15 [17412] [3] DEBUG: WSP: Mapping `text/plain', WSP 1.2 to 0x0003.
+2008-10-30 10:51:15 [17412] [3] DEBUG: WSP: Mapping `name', WSP 1.2 to 0x0005.
+2008-10-30 10:51:15 [17412] [3] DEBUG: WSP: Mapping `charset', WSP 1.2 to 0x0001.
+2008-10-30 10:51:15 [17412] [3] DEBUG: WSP: Mapping `Content-Location', WSP 1.3 to 0x000e.
+2008-10-30 10:51:15 [17412] [3] DEBUG: WSP: Mapping `Content-Type', WSP 1.3 to 0x0011.
+2008-10-30 10:51:15 [17412] [3] DEBUG: Locked released for inode 102316
+2008-10-30 10:51:15 [17412] [3] DEBUG: ----->Locked inode 102316
+2008-10-30 10:51:15 [17412] [3] DEBUG: <-----UnLocked inode 102316
+2008-10-30 10:51:15 [17412] [3] DEBUG: Locked released for inode 102309
+2008-10-30 10:51:15 [17412] [3] DEBUG: ----->Locked inode 102309
+2008-10-30 10:51:15 [17412] [3] DEBUG: <-----UnLocked inode 102309
+2008-10-30 10:51:15 [17412] [3] DEBUG: HTTP: Resetting HTTPClient for `212.217.54.51'.
+2008-10-30 10:51:15 [17412] [3] DEBUG:  entered free_clientinfo 0, ip=[135437400]
+2008-10-30 10:51:15 [17412] [3] DEBUG:  left free_clientinfo
+2008-10-30 10:51:16 [17412] [9] DEBUG: HTTP: Status line: <HTTP/1.1 204 No Content>
+2008-10-30 10:51:16 [17412] [9] DEBUG: HTTP: Received response:
+2008-10-30 10:51:16 [17412] [9] DEBUG: Octet string at 8129d48:
+2008-10-30 10:51:16 [17412] [9] DEBUG:   len:  88
+2008-10-30 10:51:16 [17412] [9] DEBUG:   size: 1024
+2008-10-30 10:51:16 [17412] [9] DEBUG:   immutable: 0
+2008-10-30 10:51:16 [17412] [9] DEBUG:   data: 78 2d 6e 6f 6b 69 61 2d 6d 6d 73 63 2d 6d 65 73   x-nokia-mmsc-mes
+2008-10-30 10:51:16 [17412] [9] DEBUG:   data: 73 61 67 65 2d 69 64 3a 20 53 51 6d 44 53 74 54   sage-id: SQmDStT
+2008-10-30 10:51:16 [17412] [9] DEBUG:   data: 5a 4e 6a 4d 41 41 47 74 42 41 41 41 41 42 41 41   ZNjMAAGtBAAAABAA
+2008-10-30 10:51:16 [17412] [9] DEBUG:   data: 41 41 72 55 41 41 41 41 41 0d 0a 78 2d 6e 6f 6b   AArUAAAAA..x-nok
+2008-10-30 10:51:16 [17412] [9] DEBUG:   data: 69 61 2d 6d 6d 73 63 2d 76 65 72 73 69 6f 6e 3a   ia-mmsc-version:
+2008-10-30 10:51:16 [17412] [9] DEBUG:   data: 20 34 2e 30 0d 0a 0d 0a                            4.0....
+2008-10-30 10:51:16 [17412] [9] DEBUG: Octet string dump ends.
+2008-10-30 10:51:16 [17412] [8] DEBUG: DUMPING RBODY:
+2008-10-30 10:51:16 [17412] [8] DEBUG: Octet string at 8129ef8:
+2008-10-30 10:51:16 [17412] [8] DEBUG:   len:  0
+2008-10-30 10:51:16 [17412] [8] DEBUG:   size: 0
+2008-10-30 10:51:16 [17412] [8] DEBUG:   immutable: 0
+2008-10-30 10:51:16 [17412] [8] DEBUG: Octet string dump ends.
+2008-10-30 10:51:16 [17412] [8] DEBUG: ret is SQmDStTZNjMAAGtBAAAABAAAArUAAAAA
+2008-10-30 10:51:16 [17412] [8] DEBUG: mms_sendtommsc: got id [SQmDStTZNjMAAGtBAAAABAAAArUAAAAA] from mm7eaif_send.
+2008-10-30 10:51:16 [17412] [8] DEBUG: MMS_SEND_ERROR_CODE: 0
+2008-10-30 10:51:16 [17412] [8] DEBUG: dlr_entry_fname: [SQmDStTZNjMAAGtBAAAABAAAArUAAAAA]
+2008-10-30 10:51:16 [17412] [8] DEBUG: ----->Locked inode 102331
+2008-10-30 10:51:16 [17412] [8] DEBUG: <-----UnLocked inode 102331
+2008-10-30 10:51:16 [17412] [8] INFO: Sending delivery-report skipped: `url' is empty, `group_id'=[iam], `msgid'=[SQmDStTZNjMAAGtBAAAABAAAArUAAAAA], report-type=[delivery-report], status=[Sent]
+2008-10-30 10:51:16 [17412] [8] INFO: Sent MMSBox Outgoing Queue MMS Send: From +21276687015/TYPE=PLMN, to +2222/TYPE=PLMN, msgsize=682: msgid=[SQmDStTZNjMAAGtBAAAABAAAArUAAAAA]
+2008-10-30 10:51:16 [17412] [8] DEBUG: e->to[0]=812a018 x->process=0
+2008-10-30 10:51:16 [17412] [8] DEBUG: free envelope: /home/realtime/mbuni/store/iam.ma/mmsbox_incoming/f/2p/qf268.1.x405.40
+2008-10-30 10:51:16 [17412] [8] DEBUG: free envelope: /home/realtime/mbuni/store/iam.ma/mmsbox_incoming/f/2p/df268.1.x405.40
+2008-10-30 10:51:16 [17412] [8] DEBUG: Locked released for inode 102175
+2008-10-30 10:51:16 [17412] [8] DEBUG: ----->Locked inode 102175
+2008-10-30 10:51:16 [17412] [8] DEBUG: <-----UnLocked inode 102175
+2008-10-30 10:51:16 [17412] [8] DEBUG: qt->deliver terminates: 1
+2008-10-30 10:51:16 [17412] [8] PANIC: gwlib/octstr.c:2544: seems_valid_real: Assertion `ostr->data[ostr->len] == '\0'' failed. (Called from gwlib/octstr.c:377:octstr_destroy.)
+

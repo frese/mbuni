@@ -1,0 +1,533 @@
+#!/usr/bin/perl -w
+#--------------------------------------------------------------------------
+# RealGate init.d script, for starting, restarting and stopping
+# the boxes of kannel ...
+#
+#--------------------------------------------------------------------------
+use strict;
+use File::stat;
+use Env;
+use English;
+use File::Copy;
+
+#----------------------------------------------------
+# The root directories of the RealGate system
+#----------------------------------------------------
+my $MBUNI_HOME;
+my $MBUNI_PROD;
+
+#----------------------------------------------------
+# The activ instances in the RealGate system
+#----------------------------------------------------
+my @INSTANCES;
+
+#----------------------------------------------------
+# The directories in which to look for files to 
+# be included in the conf file. 
+#----------------------------------------------------
+my $INCLUDE_DIRECTORY;
+
+#----------------------------------------------------
+# Some system commands with default values
+# changes should be done in /etc/mbuni.def
+#----------------------------------------------------
+my @PROGPATHS = ("/usr/bin","/usr/local/bin");
+my $USER     = "";
+my $BROWSER  = (&findprog("lynx") or die("Cannot find needed program lynx!")) . " -dump";
+my $PS       = 'ps ax';
+my $STOP_PROC_WAIT = 30;
+
+#------------------------------------------------------------------
+# First, read the "realgate.def" file to define where RealGate
+# is installed, and which instances is created.
+#------------------------------------------------------------------
+
+my $def_file = "/etc/mbuni.def";
+my $var;
+my $val;
+my $line;
+open(FH, "<$def_file") || die("Can't open /etc/mbuni.def");
+while ($line = <FH>) {
+    chop($line);
+    next if ($line =~ /^#/);  # skip comments
+    if ($line =~ /=/) {
+        ($var,$val) = split(/=/,$line);
+        $val = squeeze($val);
+        $var = squeeze($var);
+        if ($var eq "INSTANCES") {
+           @INSTANCES = split(',',$val);
+        } elsif ($var eq "USER") {
+           $USER = $val;
+        } elsif ($var eq "INCLUDE_DIRECTORY") {
+           $INCLUDE_DIRECTORY = $val;
+        } elsif ($var eq "MBUNI_HOME") {
+           $MBUNI_HOME = $val;
+        } elsif ($var eq "MBUNI_PROD") {
+           $MBUNI_PROD = $val;
+        } elsif ($var eq "PS") {
+           $PS = $val;
+        } elsif ($var eq "BROWSER" && -x $var) {
+           $BROWSER = $val;
+        }
+    }
+}
+close(FH);
+
+#----------------------------------------------------
+# Where are program files installed. Setup the PATH.
+#----------------------------------------------------
+my $EXEPATH="$MBUNI_PROD/bin";
+my $SBINPATH="$MBUNI_PROD/sbin";
+$ENV{'PATH'} = "$EXEPATH:$ENV{'PATH'}";
+#----------------------------------------------------
+# Now check that we are logged in as $USER,
+# else we make a sudo to ourselfs with this userid ...
+#----------------------------------------------------
+if ($USER ne getpwuid($UID)) {
+    if ($UID == 0) {
+	$0 =~ s/^\.//;
+	system("su - $USER -c \"$EXEPATH$0 @ARGV\"");
+    } else {
+	system("sudo -u $USER $0 @ARGV");
+    }
+    exit;
+}
+
+#----------------------------------------------------
+# The program name of the "boxes"
+#----------------------------------------------------
+#my $BEARERBOX="bearerbox";
+#my $SMSBOX="smsbox";
+my $WAPBOX="wapbox";
+my $MMSBOX="mmsbox";
+
+#----------------------------------------------------
+# The kannel configuration file.
+#----------------------------------------------------
+my $CFG;
+
+#----------------------------------------------------
+# Where are the kannel logfiles located
+#----------------------------------------------------
+my $LOGDIR="$MBUNI_HOME/log";
+my $CRASHLOG="$LOGDIR/mbuni-crash.log";
+
+#----------------------------------------------------
+# Where to store "pid" files.
+# The keepalive daemon, stores the 
+# processid of the current process.
+#----------------------------------------------------
+my $PIDDIR="$MBUNI_HOME/tmp";
+
+sub start
+{
+    my $instance = shift;
+    
+    $CFG = "$MBUNI_HOME/etc/mbuni.$instance.conf";
+
+    # Start the mmsbox
+    if (check_pid($MMSBOX, $instance)) {
+	sleep(2);
+	start_box($MMSBOX, $instance);
+    } else {
+	print("mmsbox $instance already started ...\n");
+	print("quitting ...\n");
+	return;
+    }
+}
+
+sub stop
+{
+   my $instance = shift;
+   $CFG = "$MBUNI_HOME/etc/mbuni.$instance.conf";
+
+   stop_box($MMSBOX, $instance);
+   #stop_box($WAPBOX, $instance) if (check_wapbox($CFG));
+}
+
+sub reload
+{
+   my $instance = shift;
+   $CFG = "$MBUNI_HOME/etc/mbuni.$instance.conf";
+
+   stop_box($MMSBOX, $instance);
+   sleep(1);
+   start_box($MMSBOX, $instance);
+}
+
+sub status
+{
+   my $instance = shift;
+   $CFG = "$MBUNI_HOME/etc/mbuni.$instance.conf";
+   my $port=`grep "^admin-port *= *" $CFG`;
+   $port=~ /\=\s*([0-9]*)/;
+   $port = $1;
+   print("\n\n------------- Status for $instance: -----------------\n\n");
+   system("$BROWSER 'http://localhost:$port/status'");
+}
+
+sub check
+{
+    my $instance = shift;
+
+    if (-e "$MBUNI_HOME/etc/mbuni.$instance.conf") {
+        print("$MBUNI_HOME/etc/mbuni.$instance.conf present\n");
+    } else {
+        print("$MBUNI_HOME/etc/mbuni.$instance.conf missing\n");
+    }
+}
+
+sub version
+{
+    my $instance = shift;
+    my $box = shift || $MMSBOX;
+
+    # check for instance specific box
+    $box = "$box.$instance" if (-e "$EXEPATH/$box.$instance");
+
+    if ($box ne "" && $instance ne "") {
+	system("$EXEPATH/$box --version");
+	return 1;
+    }
+
+    print ("FAILED !!\n");
+    return 0;
+}
+
+sub default_check 
+{
+    if (-e "/etc/mbuni.def") {
+        print("/etc/mbuni.def present\n");
+    } else {
+        print("/etc/rmbuni.def missing\n");
+        exit(-1);
+    }
+    if (defined($USER) && $USER ne "" && `grep '$USER\:x' /etc/passwd`) {
+        print("USER is set and valid\n");
+    } else {
+        print("USER not set or not valid (present in /etc/passwd) - check /etc/mbuni.def\n");
+    }
+    if (defined($MBUNI_HOME) && $MBUNI_HOME ne "" && stat($MBUNI_HOME)) {
+        print("MBUNI_HOME is set and valid\n");
+    } else {
+        print("MBUNI_HOME not set or not valid (directory does not exist) - check /etc/mbuni.def\n");
+    }
+    if (-e "$MBUNI_PROD/bin/mmsbox") {
+        print("$MBUNI_PROD/bin/mmsbox present\n");
+    } else {
+        print("$MBUNI_PROD/bin/mmsbox missing\n");
+    }
+    if (@INSTANCES && $#INSTANCES >= 0) {
+        print("INSTANCES is set\n");
+    } else {
+        print("INSTANCES not set - check /etc/mbuni.def\n");
+    }  	   
+}
+
+sub usage
+{
+    print("$0 (stop|start|reload|status|restart|check|version) (<instance>...)\n");
+    print("where instance in @INSTANCES\n");
+}
+
+#--------------------------------------------------
+# Now for the main thing ....
+#--------------------------------------------------
+if ($#ARGV < 0) {
+   &usage();
+   exit(-1);
+}
+my $Command = shift;        # Get the command
+my $inst;
+my @these = ();             # these instances should be the ones
+
+# check if instance was given, if not, and we are root, use then all
+# except for check/status, which is allowed for everybody
+if ($#ARGV < 0) {
+    if (($Command eq "check") or ($Command eq "status")) {
+	@these = @INSTANCES;
+    } else {
+	if ($UID == 0) {
+	    @these = @INSTANCES;
+	} else {
+	    if (in_array("default", @INSTANCES)) {
+		@these = ('default');
+	    } else {
+	        print("You need to be logged on as root in order to issue this command without specifying one or more instances\n");
+	        exit(-1);
+	    }
+	}
+    }
+} else {
+    @these = @ARGV;
+}
+
+# If the user has accidentally swapped the arguments
+if (1==scalar(@these) && in_array($Command, @INSTANCES)) {
+	my $tmp = pop(@these);
+	push(@these, $Command);
+	$Command = $tmp;
+}
+
+# Now lets do the stuff
+if ($Command eq 'stop') {
+    foreach $inst (@these) {
+	stop($inst) if (in_array($inst,@INSTANCES)); 
+    }
+} elsif ($Command eq 'start') {
+    foreach $inst (@these) {	   
+	start($inst) if (in_array($inst,@INSTANCES));
+    }
+} elsif ($Command eq 'restart') {
+    foreach $inst (@these) {
+	next if (!in_array($inst,@INSTANCES));
+	stop($inst);
+	sleep(2);
+	start($inst);
+    }
+} elsif ($Command eq 'reload') {
+    foreach $inst (@these) {
+	reload($inst) if (in_array($inst,@INSTANCES));
+    }
+} elsif ($Command eq 'status') {
+    foreach $inst (@these) {
+	status($inst) if (in_array($inst,@INSTANCES));
+    }
+} elsif ($Command eq 'check') {
+    default_check();
+    foreach $inst (@these) {
+	if (in_array($inst,@INSTANCES)) {
+	    print("$inst present in INSTANCE\n");
+	    check($inst);
+	} else {
+	    print("$inst missing from INSTANCE\n");
+	}
+    }
+} elsif ($Command eq 'version') {
+    foreach $inst (@these) {
+        version($inst) if (in_array($inst,@INSTANCES));
+    }
+} else {
+    usage();
+}
+
+#------------------------------------------------------------------
+# Sub         : in_array
+# Arguments   : string,array
+# Returns     : boolean
+# Description : Checks if string is element in array
+#------------------------------------------------------------------
+sub in_array 
+{
+   my $value = shift;
+   my @ARR = @_;
+   my $element;
+   
+   foreach $element (@ARR) {
+      return(1) if ($element eq $value);
+   }
+   return(0);
+}
+
+#------------------------------------------------------------------
+# Sub         : squeeze
+# Arguments   : string
+# Returns     : string
+# Description : removes whitespace, with respect for quotes (" & ')
+#               and escaped characters, includi
+#------------------------------------------------------------------
+sub squeeze
+{
+    my ($line)   = shift;
+    my ($out)    = "";
+    my ($first, $match);
+
+    while ( $line )
+    {
+        if ( $line =~ m/("|')((\\.|[^\1])*)\1/ )
+        {
+            $line  = $';
+            $match = $2; #$&;
+            ($first = $`) =~ s/\s+//g;
+
+            $out .= $first . $match ;
+        }
+        else
+        {
+            ($out .= $line) =~ s/\s+//g;
+            $line = "" ;
+        }
+    }
+
+    return $out;
+}
+
+#------------------------------------------------------------------
+# Sub         : findprog 
+# Arguments   : string
+# Returns     : string - empty if it fails
+# Description : searches @PROGPATHS for an executable matching the 
+#               argument 
+#------------------------------------------------------------------
+sub findprog {
+    my $program = shift;
+    my $p = "";
+
+    foreach(@PROGPATHS) {
+        $p = $_."/".$program;
+        return $p if(-x $p);
+    }
+}
+
+
+#------------------------------------------------------------------
+# Sub         : check_wapbox
+# Arguments   : configuration file
+# Returns     : True/False
+# Description : Check if wapbox configured to start
+#------------------------------------------------------------------
+sub check_wapbox
+{
+    open FH, "<$CFG" or die "Can't open $CFG";
+    my @file = <FH>;
+    close FH;
+
+    return grep (/^wapbox-port *= *\d+$/, @file);
+}
+
+#------------------------------------------------------------------
+# Sub         : check_pid
+# Arguments   : box name, instance
+# Returns     : True if it's ok to start the box
+# Description : Check if box is running, verifying pid file
+#------------------------------------------------------------------
+sub check_pid
+{
+    my $proc = shift;
+    my $instance = shift;
+    my ($pid,  $process);
+
+    if ( -e "$PIDDIR/$proc.$instance.pid") {
+	$pid = `cat $PIDDIR/$proc.$instance.pid`;
+	chomp($pid);
+	$process = `ps -p $pid|grep $pid`;
+
+	if (length($process) < 1) {
+	    system("rm $PIDDIR/$proc.$instance.pid");
+	    print "$proc pid file invalid, removing ...\n";
+	    return 1;
+	}
+        return 0;
+    } 
+    return 1;
+}
+
+#------------------------------------------------------------------
+# Sub         : start_box
+# Arguments   : box name, instance
+# Returns     : True if started
+# Description : Start a box
+#------------------------------------------------------------------
+sub start_box
+{
+    my $box = shift;
+    my $instance = shift;
+    my $pidfile = "$box.$instance.pid";
+
+    # check for instance specific box
+    $box = "$box.$instance" if (-e "$EXEPATH/$box.$instance");
+
+    print("Starting ($box) $instance .....");
+    if ($box ne "" && $instance ne "") {
+	system("$SBINPATH/run_kannel_box --pidfile $PIDDIR/$pidfile $EXEPATH/$box $CFG");
+	print ("OK\n");
+	return 1;
+    }
+
+    print ("FAILED !!\n");
+    return 0;
+}
+
+#------------------------------------------------------------------
+# Sub         : stop_box
+# Arguments   : box name, instance
+# Returns     : 
+# Description : Stop a box
+#------------------------------------------------------------------
+sub stop_box
+{
+    my $box = shift;
+    my $instance = shift;
+    my $pidfile = "$box.$instance.pid";
+
+    print("Stopping $box $instance .....");
+    if (-e "$PIDDIR/$pidfile") {
+		my $pid = `cat $PIDDIR/$pidfile`;
+		chomp($pid);
+	
+		my @child_pids = get_child_processes($pid);
+		system("kill $pid");
+		print "\nwaiting for $pid to terminate.";
+		if (wait_pid($pid,$STOP_PROC_WAIT)) {
+			print "OK";
+		} else {
+			print "killing (hard)..";
+			system("kill -9 $pid");
+		}
+		# Wait for childs to terminate..
+		foreach $pid (@child_pids) {
+			print "\nwaiting for child $pid .";
+			if (wait_pid($pid,$STOP_PROC_WAIT)==0) {
+				print "killing (hard)..";
+				system("kill -9 $pid");
+			}
+		}
+		print("OK\n");
+    } else {
+		print("already stopped.\n");
+    }
+}
+
+#------------------------------------------------------------------
+# Sub         : get_child_processes
+# Arguments   : a parent pid
+# Returns     : An array of pids for the children of parent pid
+# Description : Finds all pids of child processes for a given process
+#------------------------------------------------------------------
+sub get_child_processes
+{
+        my $ppid = shift;
+        my @processes = split(/\n/, `ps -e -o ppid,pid|grep -v PID|egrep "^ *$ppid .*"`);
+        my @child_procs;
+
+        foreach (@processes) { 
+                push(@child_procs,$1) if (/^\s*\d+\s+(\d+).*/);
+        }
+
+       	@child_procs;
+}
+
+#------------------------------------------------------------------
+# Sub         : wait_pid
+# Arguments   : pid, max time to wait in seconds
+# Returns     :  true if the pid has stopped
+# Description : Wait for a particular process to terminate
+#------------------------------------------------------------------
+sub wait_pid
+{
+        my $pid = shift;
+        my $maxwait = shift or 1;
+        my $status;
+
+        while ($maxwait ge 0) {
+				my $cmd = "ps -p $pid|grep $pid";
+				#print "cmd [$cmd]\n";
+                $status = `ps -p $pid|grep $pid`;
+                return 1 unless (length($status) >= 1);
+                sleep(1);
+                $maxwait -= 1;
+                print '.';
+        }
+
+        return 0;
+}

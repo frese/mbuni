@@ -1,0 +1,83 @@
+require 'rake'
+require 'rake/testtask'
+require 'mmslib'
+
+flowerline
+
+# include lib/ in loadpath no matter wherever we are
+$: << File.dirname("__FILE__") + "/lib"
+require 'mbuni_benchmarking'
+
+print "Loading benchmark suites"
+# Load all benchmarks
+benchmark_files = []
+Dir.new("benchmarks").each do |f|
+  if f =~ /(.*)\.rb$/
+    benchmark_files << $1
+    #print "\t- "
+    print "."
+    require File.dirname(__FILE__) + "/benchmarks/#{$1}.rb"
+  end
+end
+puts "done."
+
+# Create all specific benchmark tasks
+MbuniBenchmarking::BenchmarkSuite.all_extending_classes do |suite|
+  suite.new.methods.each do |benchmark|
+    next unless benchmark =~ /^benchmark_.*/
+    rake_task_name = suite.to_s + "-" + benchmark.gsub(/^benchmark_/, "")
+    task rake_task_name do
+      flowerbox "running benchmark: #{rake_task_name}"
+      begin
+        suite.new.run(benchmark)
+      rescue Exception => crashboombang
+        flowerbox("!", "ERROR: " + crashboombang.to_s)
+        puts crashboombang.backtrace
+      end
+    end
+  end
+  task suite do 
+    suite.new.run
+  end
+end
+
+task :default => [:list]
+
+task :test do
+  flowerbox "Running tests"
+  ruby "test/test.rb"
+end
+
+task :clean do
+  flowerbox "Cleaning up"
+  puts "Removing tmp/*"
+  `rm -rf #{File.dirname(__FILE__) + "/tmp/*"}`
+  puts "Removing old reports"
+  `rm -rf #{File.dirname(__FILE__) + "/reports/*"}`
+end
+
+task :list do
+  flowerbox "Listing available benchmarks:"
+  
+  MbuniBenchmarking::BenchmarkSuite.all_extending_classes do |suite|
+    puts suite.to_s + ":"
+    suite.new.methods.each do |benchmark|
+      next unless benchmark =~ /^benchmark_.*/
+      puts "\t" + suite.to_s + "-" + benchmark.gsub(/^benchmark_/, "")
+    end
+  end
+
+  puts    
+  puts "The special target all_benchmarks runs all of these benchmarks"
+  flowerline
+end
+
+task :all_benchmarks do
+  begin
+    MbuniBenchmarking::BenchmarkSuite.run_all
+  rescue Exception => boom
+    puts boom
+    MbuniBenchmarking::BenchmarkSuite.stop_all
+    exit
+  end  
+end

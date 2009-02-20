@@ -1,0 +1,33 @@
+#--------------------------------------------------------------------------
+# Mbuni/Kannel definitions file
+#
+# This defines various parameters used in the kannel init.d script
+# and misc control scripts
+#
+#--------------------------------------------------------------------------
+
+#-----------------------------------------------------------------
+# The system user, under which account that kannel should run .
+#-----------------------------------------------------------------
+USER=realtime
+
+#-----------------------------------------------------------------
+# The directory where the RealGate product is installed
+#-----------------------------------------------------------------
+MBUNI_HOME=/home/realtime/mbuni
+MBUNI_PROD=/home/realtime/mbuni
+
+#-----------------------------------------------------------------
+# List of gateway instances
+#-----------------------------------------------------------------
+INSTANCES=realtime.dk,comcel.co,iam.ma
+
+PASSWORD=RGUjMq7szFGsY
+
+#-----------------------------------------------------------------
+# Some system commands, edit to suite your system
+#-----------------------------------------------------------------
+
+PS='/bin/ps -ef'
+#BROWSER='lynx -dump'
+BROWSER='/usr/bin/lynx'

@@ -1,0 +1,249 @@
+Index: mms_util.c
+===================================================================
+RCS file: /home/cvs/MBUNI/mmlib/mms_util.c,v
+retrieving revision 1.1
+retrieving revision 1.4
+diff -a -u -r1.1 -r1.4
+--- mms_util.c	31 Jul 2008 22:02:46 -0000	1.1
++++ mms_util.c	10 Sep 2008 04:04:09 -0000	1.4
+@@ -20,6 +20,9 @@
+ 
+ #ifdef SunOS
+ #include <fcntl.h>
++#include <pthread.h>
++#include <sys/types.h>
++#include <sys/stat.h>
+ #endif
+ 
+ #include <errno.h>
+@@ -852,25 +855,197 @@
+ }
+ 
+ 
+-static int lockfile(int fd, int shouldblock)
++/* Compare a file_lock(lhs) to the file_key(rhs)
++   and see if they match
++*/
++int file_lock_inode_cmp(void *_lhs, void *_rhs);
++
++/* Each file gets a condition, there is only a single file_loc
++   for each inode number.  Assumes a uni
++*/
++typedef struct {
++    dev_t dev;
++    ino_t inode;
++} file_key;
++
++typedef struct {
++    file_key key;
++    pthread_cond_t condition;
++    int fd;
++} file_lock;
++
++static List *openFileList = NULL;
++static pthread_mutex_t listMutex = PTHREAD_MUTEX_INITIALIZER;
++
++void release_file_lock(int fd, file_key *key) {
++    debug("mm_util",0,"----->Locked");
++    pthread_mutex_lock(&listMutex);
++
++    if (openFileList == NULL) {
++        openFileList = (List *)gwlist_create();
++    }
++    
++    file_lock *item = (file_lock*)gwlist_search(openFileList, key, file_lock_inode_cmp);
++    if (item && item->fd == fd) {
++        /* we own the lock */
++        gwlist_delete_equal(openFileList, item);
++        pthread_cond_broadcast(&item->condition);
++        pthread_cond_destroy(&item->condition);
++        gw_free(item);
++    }
++    debug("mm_util",0,"<-----UnLocked");
++    pthread_mutex_unlock(&listMutex);
++}
++
++int unlock_and_close(int fd) {
++#ifdef SunOS
++    struct stat buf;
++    if (fstat(fd, &buf)) {
++        perror("Unable to fstat file for lock");
++        return close(fd);
++    }
++
++    file_key key;
++    key.inode = buf.st_ino;
++    key.dev   = buf.st_dev;
++    
++    release_file_lock(fd, &key);
++#endif
++
++    return close(fd);
++}
++
++int unlock_and_fclose(FILE *fp) {
++#ifdef SunOS
++    int   fd = fileno(fp);
++    struct stat buf;
++    if (fstat(fd, &buf)) {
++        perror("Unable to fstat file for lock");
++        return fclose(fp);
++    }
++
++    file_key key;
++    key.inode = buf.st_ino;
++    key.dev   = buf.st_dev;
++
++    release_file_lock(fd, &key);
++#else
++    return fclose(fp);
++#endif
++}
++
++/* Compare a file_lock(lhs) to the file_key(rhs)
++   and see if they match
++*/
++int file_lock_inode_cmp(void *_lhs, void *_rhs) {
++    file_key *rhs = (file_key*)_rhs;
++    file_lock *lhs = (file_lock *)_lhs;
++
++    return (
++            lhs && 
++            lhs->key.inode == rhs->inode && 
++            lhs->key.dev   == rhs->dev
++            );
++}
++
++int sun_lockfile(int fd, int shouldblock)
+ {
+-     int n, stop;     
+ #ifdef SunOS
+-     int flg = shouldblock ? F_SETLKW : F_SETLK;
+-     flock_t lock;
++    int n, stop;     
++    int flg = shouldblock ? F_SETLKW : F_SETLK;
++    flock_t lock;
++
++    struct stat buf;
++    if (fstat(fd, &buf)) {
++        perror("Unable to fstat file for lock");
++    }
++
++    file_key key;
++    key.inode = buf.st_ino;
++    key.dev   = buf.st_dev;
++    
++    debug("mm_util",0,"----->Locked");
++    pthread_mutex_lock(&listMutex);
++    
++    if (openFileList == NULL) {
++        openFileList = (List *)gwlist_create();
++    }
++
++    /* See if the inode exists in the list */
++    file_lock *item = NULL;
++    do {
++        item = (file_lock*)gwlist_search(openFileList, &key, file_lock_inode_cmp);
++        if (item) {
++            /* It exists, that means that someone has already locked the file */
++            if (!shouldblock) {
++                n = -1;
++                errno = EWOULDBLOCK;
++                debug("mm_util",0,"<-----UnLocked");
++                pthread_mutex_unlock(&listMutex);
++                return n;
++            }
++            
++            pthread_cond_wait(&item->condition, &listMutex);
++            /* O.k. we've got the file, but now item is invalid, 
++               the unlock_and_close removes it.
++            */
++        } 
++    } while (item != NULL);
++
++    /* No one else has locked the file, create the condition for 
++       anyone else. 
++    */
++    item = (file_lock*)gw_malloc(sizeof(file_lock));
++    item->key.inode = key.inode;
++    item->key.dev = key.dev;
++    item->fd = fd;
++    pthread_cond_init(&item->condition, NULL);
++    gwlist_append(openFileList, item);
++
++    /* Release the global lock so that we don't block the 
++       entire system waiting for fnctl to return
++    */
++    debug("mm_util",0,"<-----UnLocked");
++    pthread_mutex_unlock(&listMutex);
++
++    do {
++        lock.l_whence = SEEK_SET;
++        lock.l_start = 0;
++        lock.l_len = 0;
++        lock.l_type = F_WRLCK;
++        n = fcntl(fd, flg, &lock);
++        if (n < 0) {
++	    if (errno == EINTR)
++                stop = 0;
++	    else
++                stop = 1;
++        } else	    
++	    stop = 1;
++    } while (!stop);
++
++    /* If we failed to get the fcntl lock, then we need to 
++       release the local lock */
++    if (n != 0) {
++        release_file_lock(fd, &key);
++    }
++
++    return (n == 0) ? 0 : errno; 
++#else
++    panic(0, "Attempt to call sun_lockfile on a non-solaris system");
++#endif
++}
++
++int lockfile(int fd, int shouldblock)
++{
++#ifdef SunOS
++     return sun_lockfile(fd, shouldblock);
+ #else 
++     int n, stop;     
+      unsigned flg = shouldblock ? 0 : LOCK_NB;
+-#endif
++
+      do {
+-#ifdef SunOS
+-	  lock.l_whence = SEEK_SET;
+-	  lock.l_start = 0;
+-	  lock.l_len = 0;
+-	  lock.l_type = F_WRLCK;
+-	  n = fcntl(fd, flg, &lock);
+-#else
+ 	  n = flock(fd, LOCK_EX|flg);
+-#endif
++
+        if (n < 0) {
+ 	    if (errno == EINTR)
+ 		 stop = 0;
+@@ -881,6 +1056,7 @@
+      } while (!stop);
+      
+      return (n == 0) ? 0 : errno; 
++#endif
+ }
+ 
+ static int check_lock(int fd, char *fname)
+@@ -908,6 +1084,11 @@
+ {
+      int ret = lockfile(fd,shouldblock);
+ 
++     if (ret) {
++         debug("mm_util", 0, "Unable to lock file, error= %d, %s", errno, strerror(errno));
++         perror("Unable to lock file");
++     }
++
+      if (ret != 0 || 
+ 	 (ret = check_lock(fd,fname)) != 0)
+ 	  return ret;     

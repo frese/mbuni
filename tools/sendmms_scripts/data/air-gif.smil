@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE smil PUBLIC "-//W3C//DTD SMIL 2.0//EN"
+"http://www.w3.org/2001/SMIL20/SMIL20.dtd">
+<smil xmlns="http://www.w3.org/2001/SMIL20/Language">
+<head> 
+<meta name="title" content="sample mms" /> 
+<meta name="author" content="Christian Theil Have" /> 
+<layout>
+<root-layout width="160" height="120"/> 
+<region id="Image" width="100%" height="38" left="0" top="0" />
+<region id="Text" width="100%" left="0" top="40" />
+</layout>
+</head>
+<body>
+<img src="air.jpg" region="Image" />
+<text src="sample.txt" region="Text" />
+</body>
+</smil>
+

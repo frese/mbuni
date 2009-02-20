@@ -1,0 +1,114 @@
+<tmpl_include name="header.tmpl">
+
+    <form name=statistics method=post action="<tmpl_var name='pname'>">
+    <a class="menu" href="javascript:document.statistics.submit()">Get Statistics</a>
+    <!-- input type="submit" value="Get Statistics" -->
+    <input type="hidden" name="rm" value="statsubmit">
+    <input type="hidden" name="instance" value="<tmpl_var name='instance'>">
+    <input type="hidden" name="digest" value="<tmpl_var name='digest'>">
+
+    <table border=0 cellspacing=10 cellpadding=10 width='750'>
+    <tr valign="top"><td width='50%'>
+
+	<table border=1 cellspacing=0 cellpadding=5 width='100%'><tr><td>
+	    <span class="label">Input</span>
+	    <table width='100%'>
+	    <tr><td>Start&nbsp;date</td><td><input name=startdate type=text value="<tmpl_var name='startdate'>" size=10>
+		<script language='javascript'>
+		<!--
+		if (!document.layers) {
+		    document.write("<img src='images/calendar.gif' onclick='popUpCalendar(this, statistics.startdate, \"yyyy-mm-dd\")'>")
+		}
+		//-->
+		</script>					
+	        </td>
+
+	    <td>MMSC</td><td><select name=smscs>
+	    <option value='ALL' selected> All
+	    <tmpl_loop name="smscs">
+	    <option value='<tmpl_var name='name'>'> <tmpl_var name='name'>
+	    </tmpl_loop>
+	    </select></td></tr>
+	    
+	    <tr><td>End&nbsp;date</td><td><input name=enddate type=text value="<tmpl_var name='enddate'>" size=10>
+		<script language='javascript'>
+		<!--
+		if (!document.layers) {
+		    document.write("<img src='images/calendar.gif' onclick='popUpCalendar(this, statistics.enddate, \"yyyy-mm-dd\")'>")
+		}
+		//-->
+		</script>					
+	        </td>
+
+
+	    <tr><td>Services</td><td><select name=services>
+	    <option value='' selected> All
+
+	    <tmpl_loop name="services">
+	    <option value="<tmpl_var name='name'>"> <tmpl_var name='name'>
+	    </tmpl_loop>
+	    </select></td></tr>
+
+	    <tr><td>MSISDN</td><td><input name="msisdn" type="text" size="15"></td>
+	    <td>LAC</td><td><select name=lac>
+	    <option value='ALL' selected> All
+	    <tmpl_loop name="lacs">
+	    <option value='<tmpl_var name='name'>'> <tmpl_var name='name'>
+	    </tmpl_loop>
+	    </select>
+	    </td></tr>
+	    <tr><td>MMS&nbsp;text</td><td><input name="search" type="text" size="15"></td>
+	    <td>DLR&gt;0</td><td><input name="dlrmask" type="checkbox"></td></tr>
+	    <tr><td colspan=4>* Dateformat: yyyy-mm-dd, press to select.</td></tr></table>
+	    </td></tr>
+	    </table>
+
+    </td><td width='50%'>
+
+	    <table border=1 cellspacing=0 cellpadding=5 width='100%'><tr><td>
+	    <span class="label">Output</span>
+	    <table width='100%'>
+	    <tr><td>Show totals</td><td><input name=total type=checkbox checked></td>
+	    <td>Sent</td><td><input name=sent type=checkbox></td></tr>
+	    <tr><td>Subtotals</td><td><select name=subtotal>
+	    <option value='SMSC' selected> MMSC
+	    <option value='SERVICE'> Services
+	    <option value='LAC'> LAC
+	    <option value='MSISDN'> MSISDN
+	    <option value='TC'> Tariff class
+	    <option value='DATE'> Date
+	    <option value='DLR'> DLR</select></td>
+	    <td>Received</td><td><input name=modtaget type=checkbox></td></tr>
+	    <tr><td>Show all text</td><td><input name=msg type=checkbox></td>
+	    <td>Failed</td><td><input name=fejlet type=checkbox></td></tr>
+	    <tr></td><td>Output format</td><td><select name='format'>
+					       <option value='html' selected>HTML
+					       <option value='csv'>CSV
+					       <option value='msisdn'>Msisdn
+	    				       </select>
+	    <td>Discarded</td><td><input name=afvist type=checkbox></td></tr>
+	    <tr><td>Sort order</td><td><select name='orderby'>
+				       <option value='time' selected>By date-time
+	    			       <option value='type'>By type
+				       <option value='cid'>By correlation-id
+	    </td>
+	    <td>DLR</td><td><input name=dlr type=checkbox></td></tr>
+	    </table>
+	    </td></tr>
+	    </table>
+    </td></tr>
+    <tr valign="top">
+        <td>Input parameters determin which MMS's from the log files that are to be counted
+            in the statictics. You can select by date, smsc, large account, service (only sent messages)
+	    or by phonenumber or the text. You can use regular expressions when selecting phonenumbers and text.</td>
+        <td>Output parameters determin how your want the statistics represented, and wheater
+	    you want alle the details, or just the totals.<br>
+	    Default output is HTML (looks nice) but you can choose CSV that can be
+	    imported into fx. Microsoft Excel, or MSISDN which is a list of just the phone numbers
+	    involved seperated by comma.</td>
+	</tr>
+
+    </table>
+    </form>
+
+<tmpl_include name="footer.tmpl">

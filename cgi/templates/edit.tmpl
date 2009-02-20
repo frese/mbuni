@@ -1,0 +1,81 @@
+<tmpl_include name='header.tmpl'>
+
+<script language='javascript' src="popup.js"></script>
+
+<form name="frmedit" action="<tmpl_var name='pname'>" method="post">
+    <input type="hidden" name="type" value="<tmpl_var name='type'>">
+    <input type="hidden" name="nr" value="<tmpl_var name='nr'>">
+    <input type="hidden" name="instance" value="<tmpl_var name='instance'>">
+    <input type="hidden" name="digest" value="<tmpl_var name='digest'>">
+    <a class="menu" href="javascript:document.frmedit.submit();">Save&nbsp;</a>
+    <a class="menu" href="javascript:history.go(-1)">Cancel&nbsp;</a>
+
+    <input type="hidden" name="rm" value="<tmpl_var name='rm'>">
+
+    <tmpl_loop name='parameters'>
+	<tmpl_if name="help"><div onclick="event.cancelBubble=true;" class="popup" id="<tmpl_var name='text'>-help"><tmpl_var name="help"></div></tmpl_if>
+
+	<tmpl_if name='div'><div id="<tmpl_var name='div'>" style="display:<tmpl_var name='display'>;"></tmpl_if>
+        <div class="row">
+
+	<tmpl_if name='mandatory'>
+	    <div class="left-man">
+	    <tmpl_var name='text'>
+	    </div>
+	<tmpl_else>
+	    <div class="left">
+	    <tmpl_var name='text'>
+	    </div>
+	</tmpl_if>
+
+
+	<div class="right">
+	<tmpl_if name='string'> <input type="text" name="<tmpl_var name='name'>" value="<tmpl_var name='value'>" size="<tmpl_var name='size'>" class="flat"> 
+	</tmpl_if>
+
+	<tmpl_if name='select'> <select name="<tmpl_var name='name'>" size="<tmpl_var name='size'>" 
+				    <tmpl_if name='ctrl'>OnChange="<tmpl_var name='ctrl'>"</tmpl_if> class="flat"> 
+				<tmpl_loop name='list'>
+				<option value="<tmpl_var name=option>" <tmpl_if name='selected'>selected</tmpl_if>><tmpl_var name=option></option>
+				</tmpl_loop>
+				</select>
+	</tmpl_if>
+
+	<tmpl_if name='mselect'> <select multiple name="<tmpl_var name='name'>" size="<tmpl_var name='size'>" class="flat"> 
+				 <tmpl_loop name='list'>
+				 <option <tmpl_if name='selected'>selected</tmpl_if>><tmpl_var name=option></option>
+				 </tmpl_loop>
+				 </select>
+	</tmpl_if>
+
+	<tmpl_if name='number'> <input type="text" name="<tmpl_var name='name'>" value="<tmpl_var name='value'>" size="<tmpl_var name='size'>" class="flat"> 
+	</tmpl_if>
+
+	<tmpl_if name='bool'>   <select name="<tmpl_var name='name'>" class="flat">
+				<option <tmpl_if name=false>selected</tmpl_if>>false</option>
+				<option <tmpl_if name=true>selected</tmpl_if>>true</option>
+				</select> 
+	</tmpl_if>
+
+	<tmpl_if name='ip'>     <input type='text' name="<tmpl_var name='name'>" value="<tmpl_var name='value'>" size="<tmpl_var name='size'>" class="flat"> 
+	</tmpl_if>
+
+	<tmpl_if name='readonly'><tmpl_var name='value'></tmpl_if>
+
+	<tmpl_if name="help">
+	<a href="help.txt" onclick="return !showPopup('<tmpl_var name=text>-help', event);"><img src="images/help.gif" border=0></a>
+	</tmpl_if>
+        </div>
+
+	</div>
+	<tmpl_if name='div'></div></tmpl_if>
+    </tmpl_loop>
+
+    <br>
+    <font size="-1">Mandatory fields marked in bold</font><br>
+</form>
+
+<!-- leave this blank div in here to make sure you can click anywhere on the document for MSIE 5 mac -->
+<div id="blankDiv" style="position: absolute; left: 0; top: 0; visibility: hidden"></div>
+
+<tmpl_include name='footer.tmpl'>

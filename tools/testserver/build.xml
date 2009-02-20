@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<project name="MMS test server" default="all" basedir=".">
+    <property name="jars" value="jars"/>
+    <path id="classpath.jars">
+        <pathelement location="${jars}/MMSLibrary.jar"/>
+    </path>
+    <property name="classpath" refid="classpath.jars"/>
+
+    <target name="compile">
+      <mkdir dir="${basedir}/dist"/>
+      <javac srcdir="${basedir}/java"
+           destdir="${basedir}/dist"
+           debug="on"
+           deprecation="off"
+           optimize="on"
+           encoding="UTF-8"
+      >
+        <classpath path="${classpath}" />
+        <include name="**/*.java" />
+      </javac>
+    </target>
+
+    <target name="clean">
+      <exec executable="/bin/rm" failonerror="false">
+        <arg value="-rf"/>
+        <arg value="dist/"/>
+      </exec>
+    </target>
+
+    <target name="all" depends="compile" />
+    
+</project>

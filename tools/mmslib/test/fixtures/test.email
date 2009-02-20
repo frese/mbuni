@@ -1,0 +1,22 @@
+To: +447778889999/TYPE=PLMN@mms.domain.com
+From: username@domain.com
+Subject: News for today
+Content-Type: multipart/mixed; boundary="StoryParts-74526-8432-2002-77645"
+Content-ID:<SaturnPics-01020930@news.tnn.com>
+
+This is a MIME encoding message. If you are seeing this, 
+your mail client probably doesn't support MIME.
+
+--StoryParts-74526-8432-2002-77645
+Content-Type: text/plain; charset="us-ascii"
+
+Science news, new Saturn pictures...
+
+--StoryParts-74526-8432-2002-77645
+Content-Type: image/gif
+Content-ID:<saturn.gif>
+Content-Transfer-Encoding: base64
+
+R0lGODdhZAAwAOMAAAAAAIGJjGltcDE0OOfWo6Ochbi1n1pmcbGojpKbnP/lpW54fBMTE1RYXEFO
+...
+--StoryParts-74526-8432-2002-77645--

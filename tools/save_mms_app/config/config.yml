@@ -1,0 +1,2 @@
+port: 3111
+attachment-directory: "mms_store" 

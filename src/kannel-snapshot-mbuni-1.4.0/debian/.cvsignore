@@ -1,0 +1,13 @@
+files
+*.debhelper
+*.substvars
+tmp
+kannel
+kannel-docs
+kannel-extras
+kannel-devel
+kannel-devel-docs
+kannel-devel-extras
+kannel-cvs
+kannel-cvs-docs
+kannel-cvs-extras

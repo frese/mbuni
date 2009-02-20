@@ -1,0 +1,185 @@
+bearerbox.c:          Octstr *s = mms_get_header_value((msg),octstr_imm("Subject")); \
+bearerbox.c:          if ((_i = octstr_search(f, octstr_imm("/TYPE="), 0)) >= 0) \
+bearerbox.c:     Octstr *v = http_header_value(headers, octstr_imm("Authorization"));
+bearerbox.c:	 octstr_search(v, octstr_imm("Basic "), 0) != 0)
+bearerbox.c:     mms_url_fetch_content(HTTP_METHOD_GET, url, rh, octstr_imm(""), &rph, &rb);
+bearerbox.c:	 (octstr_case_compare(status, octstr_imm("Deferred")) != 0 &&
+bearerbox.c:	  octstr_case_compare(status, octstr_imm("Sent")) != 0))
+bearerbox.c:	  from = octstr_imm("anon@anon");
+bearerbox.c:	       Octstr *linkedid = mm7_soap_header_value(mreq, octstr_imm("LinkedID"));
+bearerbox.c:	       Octstr *value = mms_get_header_value(m, octstr_imm("X-Mms-Delivery-Report"));	  
+bearerbox.c:		   octstr_case_compare(value, octstr_imm("Yes")) == 0) 
+bearerbox.c:				       octstr_imm(MM_NAME));
+bearerbox.c:	       msgid = mms_make_msgid(octstr_get_cstr(qf), octstr_imm(MM_NAME));
+bearerbox.c:					    octstr_imm(MM_NAME));
+bearerbox.c:	       Octstr *desc = mm7_soap_header_value(mreq, octstr_imm("StatusText"));
+bearerbox.c:	       Octstr *value = mm7_soap_header_value(mreq, octstr_imm("MMStatus"));
+bearerbox.c:	       msgid = mm7_soap_header_value(mreq, octstr_imm("MessageID"));
+bearerbox.c:					    octstr_imm(MM_NAME));
+bearerbox.c:	       Octstr *value = mm7_soap_header_value(mreq, octstr_imm("MMStatus"));
+bearerbox.c:	       msgid = mm7_soap_header_value(mreq, octstr_imm("MessageID"));
+bearerbox.c:     hfrom = http_header_value(h->headers, octstr_imm("X-NOKIA-MMSC-From"));     
+bearerbox.c:	 (m = mms_frombinary(h->body, hfrom ? hfrom : octstr_imm("anon@anon"))) == NULL) {
+bearerbox.c:	  if ((msgid = http_header_value(h->headers, octstr_imm("X-NOKIA-MMSC-Message-Id"))) == NULL)
+bearerbox.c:	       msgid = http_header_value(mh, octstr_imm("Message-ID"));	  
+bearerbox.c:	  value = http_header_value(mh, octstr_imm("X-Mms-Delivery-Report"));	  
+bearerbox.c:	      octstr_case_compare(value, octstr_imm("Yes")) == 0) 
+bearerbox.c:	       hfrom = http_header_value(mh, octstr_imm("From"));
+bearerbox.c:				  octstr_imm(MM_NAME));
+bearerbox.c:				       octstr_imm(MM_NAME));
+bearerbox.c:	       Octstr *value = http_header_value(mh, octstr_imm("X-Mms-Status"));
+bearerbox.c:	       Octstr *value2 = http_header_value(mh, octstr_imm("Message-ID")); 
+bearerbox.c:				       octstr_imm(MM_NAME));
+bearerbox.c:	       Octstr *value = http_header_value(mh, octstr_imm("X-Mms-Read-Status"));
+bearerbox.c:	       Octstr *value2 = http_header_value(mh, octstr_imm("Message-ID")); 
+bearerbox.c:     http_send_reply(h->client, hstatus, rh, octstr_imm(""));
+bearerbox.c:	       h.ua = http_header_value(h.headers, octstr_imm("User-Agent"));	       
+bearerbox.c:				    octstr_imm("Authentication failed"));			   
+bearerbox.c:	       h.ua = http_header_value(h.headers, octstr_imm("User-Agent"));
+bearerbox.c:                               octstr_imm("Access denied."));
+bearerbox.c:	  distrib = http_header_value(hdrs, octstr_imm("X-Mbuni-DistributionIndicator"));
+bearerbox.c:     if ((s = mm7_soap_header_value(mresp, octstr_imm("StatusCode"))) != NULL) {
+bearerbox.c:     } else if ((s = mm7_soap_header_value(mresp, octstr_imm("faultstring"))) != NULL) {
+bearerbox.c:	  Octstr *detail =  mm7_soap_header_value(mresp, octstr_imm("Details"));
+bearerbox.c:	       detail = mm7_soap_header_value(mresp, octstr_imm("faultcode"));
+bearerbox.c:	  ret = mm7_soap_header_value(mresp, octstr_imm("MessageID"));	  
+bearerbox.c:	  MmsMsg *mresp = rbody ? mms_frombinary(rbody, octstr_imm("anon@anon")) : NULL;
+bearerbox.c:	  resp = octstr_imm("Ok");
+bearerbox.c:	       resp = mms_get_header_value(mresp, octstr_imm("X-Mms-Response-Status"));	  
+bearerbox.c:	  if (octstr_case_compare(resp, octstr_imm("ok")) != 0)
+bearerbox.c:	       ret = mms_get_header_value(mresp, octstr_imm("Message-ID"));
+bearerbox.c:	       ret = http_header_value(ph, octstr_imm("X-Nokia-MMSC-Message-Id"));
+bearerbox.c:     Octstr *otransid = e->hdrs ? http_header_value(e->hdrs, octstr_imm("X-Mbuni-TransactionID")) : NULL;
+bearerbox.c:                           octstr_imm("Sent"), new_msgid, mmc->id, mmc->group_id, otransid, NULL, -1);
+bearerbox.c:			   octstr_imm("Expired") : octstr_imm("Rejected"),
+dlr.c:     octstr_replace(t, octstr_imm("/"), octstr_imm("$")); /* XXX safe in all cases?? */
+dlr.c:	  Octstr *x = octstr_format("%S %S", transid ? transid : octstr_imm("x"), dlr_url); /* better have no spaces in transid! */
+mmsbox.c:	  Octstr *charset = http_header_value(params_h, octstr_imm("charset"));
+mmsbox.c:               charset = octstr_imm(DEFAULT_CHARSET);
+mmsbox.c:	  if (octstr_case_compare(charset, octstr_imm(DEFAULT_CHARSET)) != 0) {
+mmsbox.c:	  ctype = octstr_imm("application/vnd.wap.mms-message");
+mmsbox.c:#define BEGINSWITH(s, prefix) (octstr_case_search(s, octstr_imm(prefix),0) == 0)     
+mmsbox.c:	       ctype = http_header_value(headers, octstr_imm("Content-Type"));
+mmsbox.c:						 octstr_imm("Content-Location"));    
+mmsbox.c:		    Octstr *v = cloc ? cloc : http_header_value(ph, octstr_imm("name"));
+mmsbox.c:     transid = mms_maketransid(e->xqfname, octstr_imm(MM_NAME));
+mmsbox.c:	  if ((s = http_header_value(e->hdrs, octstr_imm("X-Mbuni-UAProf"))) != NULL) { /* add UAProf info, if any. */
+mmsbox.c:	       Octstr *sx = http_header_value(e->hdrs,octstr_imm("X-Mbuni-Timestamp"));
+mmsbox.c:	       ctype = octstr_imm("application/smil");
+mmsbox.c:	  ctype = octstr_imm("text/plain");
+mmsbox.c:			      e->msgId, keyword ? octstr_imm("") : keyword);
+mmsbox.c:	  fname = octstr_imm("mbuni.conf");
+mmsbox.c:	  i = octstr_search(url, octstr_imm("://"),0);
+mmsbox.c:     i = octstr_search(url, octstr_imm("://"),0);
+mmsbox.c:	       ctype = http_header_value(rph, octstr_imm("Content-Type"));
+mmsbox.c:	  subject = http_header_value(reply_headers, octstr_imm("X-Mbuni-Subject"));
+mmsbox.c:	  if ((x = http_header_value(reply_headers, octstr_imm("X-Mbuni-Expiry"))) != NULL)
+mmsbox.c:	  xfrom = http_header_value(reply_headers, octstr_imm("X-Mbuni-From"));
+mmsbox.c:	  dlr_url = http_header_value(reply_headers, octstr_imm("X-Mbuni-DLR-Url"));
+mmsbox.c:	  rr_url = http_header_value(reply_headers, octstr_imm("X-Mbuni-RR-Url"));
+mmsbox.c:          allow_adaptations = http_header_value(reply_headers, octstr_imm("X-Mbuni-Allow-Adaptations"));
+mmsbox.c:	  mmc = http_header_value(reply_headers, octstr_imm("X-Mbuni-MMSC"));
+mmsbox.c:	  mclass = http_header_value(reply_headers, octstr_imm("X-Mbuni-MessageClass"));
+mmsbox.c:	  prio = http_header_value(reply_headers, octstr_imm("X-Mbuni-Priority"));
+mmsbox.c:	  hsvc_code = http_header_value(reply_headers, octstr_imm("X-Mbuni-ServiceCode"));
+mmsbox.c:	  otransid = http_header_value(reply_headers, octstr_imm("X-Mbuni-TransactionID"));
+mmsbox.c:	  distro = http_header_value(reply_headers, octstr_imm("X-Mbuni-DistributionIndicator"));
+mmsbox.c:     if (octstr_case_compare(ctype, octstr_imm("application/vnd.wap.mms-message")) == 0)
+mmsbox.c:     else if (octstr_case_search(ctype, octstr_imm("multipart/"), 0) == 0) { /* treat it differently. */
+mmsbox.c:     } else if (octstr_case_search(ctype, octstr_imm("application/smil"), 0) == 0) {
+mmsbox.c:	      octstr_case_search(ctype, octstr_imm("multipart/"), 0) != 0) { /* requires multipart but this one is not, wrap it */
+mmsbox.c:		       octstr_imm(MM_NAME));
+mmsbox.c:		    base_url = octstr_imm("http://localhost");
+mmsbox.c:		    ctype = octstr_imm("application/smil");
+mmsbox.c:		    if (mmsbox_url_fetch_content(HTTP_METHOD_GET, data, reqh, octstr_imm(""), &rph, &reply) == HTTP_OK)
+mmsbox.c:		    ctype = http_header_value(h, octstr_imm("Content-Type"));
+mmsbox.c:		    rb = octstr_imm("Missing content");
+mmsbox.c:		    rb = octstr_imm("Missing recipient!");
+mmsbox.c:		    rb = octstr_imm("Missing Sender address");
+mmsbox.c:			 transid = mms_maketransid(NULL, octstr_imm(MM_NAME));
+mmsbox.c:					     vasid ? vasid : octstr_imm("sendmms-user"), 
+mmsbox.c:		    rb = octstr_imm("Failed to send message");	       
+mmsbox.c:			       rb ? rb : octstr_imm("Sent"));	       
+mmsbox.c:			       octstr_imm("Authentication failed"));
+mmsbox_cfg.c:     mCfgGrp *grp = mms_cfg_get_single(cfg, octstr_imm("mbuni"));
+mmsbox_cfg.c:     mCfgGrp *cgrp = mms_cfg_get_single(cfg, octstr_imm("core"));
+mmsbox_cfg.c:			 octstr_imm("maximum-send-attempts"), &mmsbox_maxsendattempts) < 0)
+mmsbox_cfg.c:		     octstr_imm("send-attempt-back-off"), &mmsbox_send_back_off) == -1)
+mmsbox_cfg.c:     if (mms_cfg_get_int(grp, octstr_imm("default-message-expiry"), &default_msgexpiry) == -1)
+mmsbox_cfg.c:     if (mms_cfg_get_int(grp, octstr_imm("max-send-threads"), &maxthreads) == -1)
+mmsbox_cfg.c:     s = mms_cfg_get(grp, octstr_imm("queue-run-interval"));
+mmsbox_cfg.c:     gdir = mms_cfg_get(grp, octstr_imm("storage-directory"));     
+mmsbox_cfg.c:	  gdir = octstr_imm(".");
+mmsbox_cfg.c:	  Octstr *s = _mms_cfg_getx(grp, octstr_imm("queue-module-init-data"));
+mmsbox_cfg.c:     unified_prefix = _mms_cfg_getx(grp, octstr_imm("unified-prefix"));  
+mmsbox_cfg.c:     if ((s = mms_cfg_get(grp, octstr_imm("strip-prefixes"))) != NULL) {
+mmsbox_cfg.c:	  strip_prefixes = octstr_split(s, octstr_imm(";"));
+mmsbox_cfg.c:     mms_cfg_get_int(grp, octstr_imm("sendmms-port"), &sendmms_port.port);
+mmsbox_cfg.c:     mms_cfg_get_bool(grp, octstr_imm("sendmms-port-ssl"), &send_port_ssl);
+mmsbox_cfg.c:     sendmms_port.allow_ip = mms_cfg_get(grp, octstr_imm("allow-ip"));          
+mmsbox_cfg.c:     sendmms_port.deny_ip =  mms_cfg_get(grp, octstr_imm("deny-ip"));          
+mmsbox_cfg.c:     mms_cfg_get_bool(grp, octstr_imm("mmsbox-mt-always-multipart"), &mt_multipart);
+mmsbox_cfg.c:     rfs_settings = _mms_cfg_getx(grp, octstr_imm("resolver-module-parameters"));
+mmsbox_cfg.c:     l = mms_cfg_get_multi(cfg, octstr_imm("send-mms-user"));
+mmsbox_cfg.c:	  u->user = _mms_cfg_getx(x, octstr_imm("username"));
+mmsbox_cfg.c:	  u->pass = _mms_cfg_getx(x, octstr_imm("password"));
+mmsbox_cfg.c:	  u->faked_sender = mms_cfg_get(x, octstr_imm("faked-sender"));	  	  
+mmsbox_cfg.c:	  u->dlr_url = _mms_cfg_getx(x, octstr_imm("delivery-report-url"));	  	  
+mmsbox_cfg.c:	  u->rr_url = _mms_cfg_getx(x, octstr_imm("read-report-url"));	  	  
+mmsbox_cfg.c:     l = mms_cfg_get_multi(cfg, octstr_imm("mmsc"));
+mmsbox_cfg.c:	  m->id = _mms_cfg_getx(x, octstr_imm("id"));
+mmsbox_cfg.c:          m->group_id = mms_cfg_get(x, octstr_imm("group-id"));
+mmsbox_cfg.c:	  m->mmsc_url = _mms_cfg_getx(x, octstr_imm("mmsc-url"));
+mmsbox_cfg.c:	  m->allowed_prefix = mms_cfg_get(x, octstr_imm("allowed-prefix"));
+mmsbox_cfg.c:	  m->denied_prefix = mms_cfg_get(x, octstr_imm("denied-prefix"));
+mmsbox_cfg.c:	  m->allowed_sender_prefix = mms_cfg_get(x, octstr_imm("allowed-sender-prefix"));
+mmsbox_cfg.c:	  m->denied_sender_prefix = mms_cfg_get(x, octstr_imm("denied-sender-prefix"));
+mmsbox_cfg.c:	  m->incoming.allow_ip = mms_cfg_get(x, octstr_imm("allow-ip"));          
+mmsbox_cfg.c:	  m->incoming.deny_ip =  mms_cfg_get(x, octstr_imm("deny-ip"));          
+mmsbox_cfg.c:	  m->incoming.user = _mms_cfg_getx(x, octstr_imm("incoming-username"));
+mmsbox_cfg.c:	  m->incoming.pass = _mms_cfg_getx(x, octstr_imm("incoming-password"));
+mmsbox_cfg.c:	  mms_cfg_get_int(x, octstr_imm("incoming-port"), &m->incoming.port);
+mmsbox_cfg.c:	  mms_cfg_get_bool(x, octstr_imm("incoming-port-ssl"), &ssl);
+mmsbox_cfg.c:          if ((tmp = mms_cfg_get(x, octstr_imm("max-throughput"))) != NULL) {   
+mmsbox_cfg.c:	  type = _mms_cfg_getx(x, octstr_imm("type"));
+mmsbox_cfg.c:	  if (octstr_case_compare(type, octstr_imm("eaif")) == 0)
+mmsbox_cfg.c:	  else if (octstr_case_compare(type, octstr_imm("soap")) == 0)
+mmsbox_cfg.c:	  else if (octstr_case_compare(type, octstr_imm("custom")) == 0) {
+mmsbox_cfg.c:	       m->settings = _mms_cfg_getx(x, octstr_imm("custom-settings"));	       
+mmsbox_cfg.c:	  if ((xver = _mms_cfg_getx(x, octstr_imm("mm7-version"))) != NULL && 
+mmsbox_cfg.c:	  if ((s = mms_cfg_get(x, octstr_imm("mm7-soap-xmlns"))) != NULL) {
+mmsbox_cfg.c:	  mms_cfg_get_bool(x, octstr_imm("use-mm7-soap-namespace-prefix"), &m->ver.use_mm7_namespace);
+mmsbox_cfg.c:	  if ((s = mms_cfg_get(x, octstr_imm("mm7-mt-filter-params"))) != NULL) {
+mmsbox_cfg.c:	  mms_cfg_get_bool(x, octstr_imm("reroute"), &m->reroute);
+mmsbox_cfg.c:	  mms_cfg_get_bool(x, octstr_imm("reroute-add-sender-to-subject"), &m->reroute_mod_subject);
+mmsbox_cfg.c:	  m->reroute_mmsc_id = mms_cfg_get(x, octstr_imm("reroute-mmsc-id"));
+mmsbox_cfg.c:	  mms_cfg_get_bool(x, octstr_imm("no-sender-address"), &m->no_senderaddress);
+mmsbox_cfg.c:     l = mms_cfg_get_multi(cfg, octstr_imm("mms-service"));     
+mmsbox_cfg.c:	  m->name = _mms_cfg_getx(x, octstr_imm("name"));
+mmsbox_cfg.c:	  if ((m->url = mms_cfg_get(x, octstr_imm("get-url"))) != NULL)
+mmsbox_cfg.c:	  else if ((m->url = mms_cfg_get(x, octstr_imm("post-url"))) != NULL)
+mmsbox_cfg.c:	  else if ((m->url = mms_cfg_get(x, octstr_imm("file"))) != NULL)
+mmsbox_cfg.c:	  else if ((m->url = mms_cfg_get(x, octstr_imm("exec"))) != NULL)
+mmsbox_cfg.c:	  else if ((m->url = mms_cfg_get(x, octstr_imm("text"))) != NULL)
+mmsbox_cfg.c:	  m->faked_sender = mms_cfg_get(x, octstr_imm("faked-sender"));	  	  
+mmsbox_cfg.c:	  mms_cfg_get_bool(x, octstr_imm("catch-all"), &m->isdefault);     
+mmsbox_cfg.c:	  if (mms_cfg_get_bool(x, octstr_imm("omit-empty"), &m->omitempty) < 0)
+mmsbox_cfg.c:	  if (mms_cfg_get_bool(x, octstr_imm("suppress-reply"), &m->noreply) < 0)
+mmsbox_cfg.c:	  mms_cfg_get_bool(x, octstr_imm("accept-x-mbuni-headers"), &m->accept_x_headers); 
+mmsbox_cfg.c:	  if ((s = mms_cfg_get(x, octstr_imm("pass-thro-headers"))) != NULL) {
+mmsbox_cfg.c:	       m->passthro_headers = octstr_split(s, octstr_imm(","));
+mmsbox_cfg.c:	  mms_cfg_get_bool(x, octstr_imm("assume-plain-text"), &m->assume_plain_text);
+mmsbox_cfg.c:	  if ((s = mms_cfg_get(x, octstr_imm("accepted-mmscs"))) != NULL) {
+mmsbox_cfg.c:	       m->allowed_mmscs = octstr_split(s, octstr_imm(";"));
+mmsbox_cfg.c:	  if ((s = mms_cfg_get(x, octstr_imm("denied-mmscs"))) != NULL) {
+mmsbox_cfg.c:	       m->denied_mmscs = octstr_split(s, octstr_imm(";"));
+mmsbox_cfg.c:	  m->allowed_receiver_prefix = mms_cfg_get(x, octstr_imm("allowed-receiver-prefix"));
+mmsbox_cfg.c:	  m->denied_receiver_prefix = mms_cfg_get(x, octstr_imm("denied-receiver-prefix"));
+mmsbox_cfg.c:	  if ((s = mms_cfg_get(x, octstr_imm("aliases"))) != NULL) {
+mmsbox_cfg.c:	       m->keywords = octstr_split(s, octstr_imm(";"));
+mmsbox_cfg.c:	  s = mms_cfg_get(x, octstr_imm("keyword"));
+mmsbox_cfg.c:	  if ((s = mms_cfg_get(x, octstr_imm("http-post-parameters"))) != NULL) {
+mmsbox_cfg.c:	       List *r = octstr_split(s, octstr_imm("&"));
+mmsbox_cfg.c:	  m->service_code = mms_cfg_get(x, octstr_imm("service-code"));
+mmsbox_cfg.c:	 octstr_case_search(to, octstr_imm("/TYPE=IPv"), 0) > 0) /* For emails, or ip take first mmsc. */
+mmsbox_resolve_shell.c:     script = octstr_imm(settings);

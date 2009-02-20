@@ -1,0 +1,17 @@
+<smil>
+<head>
+<meta name="title" content="sample mms" />
+<meta name="author" content="Christian Theil Have" />
+<layout>
+<root-layout width="160" height="120"/>
+<region id="Image" width="100%" height="80" left="0" top="0" /> 
+<region id="Text" width="100%" height="40" left="0" top="80" />
+</layout>
+</head>
+<body>
+   <par dur="8s">
+      <img src="sample_image.jpg" region="Image" />
+      <text src="sample_text.txt" region="Text" />
+   </par>
+</body>
+</smil>
